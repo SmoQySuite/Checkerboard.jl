@@ -1,23 +1,34 @@
 using LinearAlgebra
 using Checkerboard
-using LatticeUtilities
 using Test
 
 @testset "Checkerboard.jl" begin
     
-    # construct square lattice neighbor table for nearest neighbor hopping
-    L       = 12
-    t0      = 1.0
-    Δτ      = 0.1
-    square  = UnitCell([[1.,0.],[0.,1.]], [[0.,0.]])
-    lattice = Lattice([L,L], [true,true])
-    bond_x  = Bond([1,1], [1,0])
-    bond_y  = Bond([1,1], [0,1])
-    nt      = build_neighbor_table([bond_x,bond_y], square, lattice)
-    t       = fill(t0, size(nt,2))
+    # construct square lattice neighbor table
+    L  = 12 # lattice size
+    nt = Vector{Int}[] # list of neighbors
+    for y in 1:L, x in 1:L # add x direction neighbors
+        s  = (y-1)*L + x
+        x′ = mod1(x+1,L)
+        s′ = (y-1)*L + x′
+        push!(nt,[s,s′])
+    end
+    for y in 1:L, x in 1:L # add y direction neighbors
+        s  = (y-1)*L + x
+        y′ = mod1(y+1,L)
+        s′ = (y′-1)*L + x
+        push!(nt,[s,s′])
+    end
+    nt = hcat(nt...) # final neighbor table
+
+    # corresponding hoppig for each pair of neighbors in the neighbor table
+    t = fill(1.0, size(nt,2))
+
+    # discretization in imaginary time
+    Δτ = 0.1
 
     # calculate exact exponentiated hopping matrix exp(-Δτ⋅K)
-    K = zeros(typeof(t0),L^2,L^2)
+    K = zeros(Float64, L^2, L^2)
     for c in 1:size(nt,2)
         i      = nt[1,c]
         j      = nt[2,c]
@@ -36,7 +47,7 @@ using Test
     Γ⁻¹ = inv(Γ)
 
     # build dense versions of matrices
-    I_dense   = Matrix{typeof(t0)}(I,L^2,L^2)
+    I_dense   = Matrix{Float64}(I,L^2,L^2)
     Γ_dense   = similar(I_dense)
     Γᵀ_dense  = similar(I_dense)
     Γ⁻¹_dense = similar(I_dense)

@@ -13,7 +13,6 @@ of a square lattice with isotropic nearest-neighbor hopping. The first step is t
 ```@example square_lattice
 using LinearAlgebra
 using BenchmarkTools
-using LatticeUtilities
 using Checkerboard
 
 # set number of BLAS threads to 1 for fair benchmarking purposes.
@@ -21,24 +20,53 @@ BLAS.set_num_threads(1);
 ```
 
 The next step is to construct the neighbor table, and record the corresponding hopping amplitudes,
-for a square lattice with isotropic nearest-neighbor hopping. To simplify this process we
-will use the [LatticeUtilities.jl](https://github.com/cohensbw/LatticeUtilities.jl) package.
-We also define the discretization in imaginary time ``\Delta\tau``, which is used as the
+for a square lattice with isotropic nearest-neighbor hopping.
+We also define a discretization in imaginary time ``\Delta\tau``, which is used as the
 small parameter in the checkerboard decomposition approximation.
 
 ```@example square_lattice
-L       = 12
-N       = L^2
-square  = UnitCell([[1.,0.],[0.,1.]], [[0.,0.]])
-lattice = Lattice([L,L], [true,true])
-bond_x  = Bond([1,1], [1,0])
-bond_y  = Bond([1,1], [0,1])
-nt      = build_neighbor_table([bond_x,bond_y], square, lattice)
-t       = fill(1.0, size(nt,2))
-Δτ      = 0.1
+# lattice size
+L = 12
+
+# number of sites in lattice
+N = L^2
+
+# vector to contain list of neighbors
+nt = Vector{Int}[]
+
+# add x direction neighbors
+for y in 1:L, x in 1:L
+    s  = (y-1)*L + x
+    x′ = mod1(x+1,L)
+    s′ = (y-1)*L + x′
+    push!(nt,[s,s′])
+end
+
+# add y direction neighbors
+for y in 1:L, x in 1:L
+    s  = (y-1)*L + x
+    y′ = mod1(y+1,L)
+    s′ = (y′-1)*L + x
+    push!(nt,[s,s′])
+end
+
+# final neighbor table
+nt = hcat(nt...)
+
+# corresponding hoppig for each pair of neighbors in the neighbor table
+t = fill(1.0, size(nt,2))
+
+# discretization in imaginary time i.e. the small parameter
+# used in the checkerboard approximation
+Δτ = 0.1
 
 nt
 ```
+
+While constructing the neighbor table was simple for a square lattice, constructing neighbor tables
+for more complicated lattice geometries can be very tricky. 
+That is why we would recommend using the [LatticeUtilities.jl](https://github.com/cohensbw/LatticeUtilities.jl)
+package to greatly simplify this task.
 
 Next, for comparison purposes, we explicitly construct the hopping matrix ``K`` and exponentiate it,
 giving us the exact matrix ``e^{-\Delta\tau K}`` that the checkerboard decomposition matrix
