@@ -1,9 +1,6 @@
 # Usage
 
 This section demonstrates how to use the [Checkerboard.jl](https://github.com/cohensbw/Checkerboard.jl) package.
-While the source code for [Checkerboard.jl](https://github.com/cohensbw/Checkerboard.jl) does not depend on the
-external package [LatticeUtilities.jl](https://github.com/cohensbw/LatticeUtilities.jl), this package will be used
-to expediate the process of constructing neighbor tables for given lattice geometries.
 
 ## The Square Lattice
 
