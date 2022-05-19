@@ -5,10 +5,10 @@
 """
     checkerboard_decomposition!(neighbor_table::Matrix{Int})
 
-Given a neighbor table `neighbor_table`, construct the checkerboard decomposition,
-and re-order `neighbor_table` to reflect this. Also returns the two arrays:
-- `perm::Vector{Int}`: The permutation used to re-order `neighbor_table` according to the checkerboard decomposition.
-- `colors::Matrix{Int}`: Marks the boundaries column indice boundaries for each checkerboard color in `neighbor_table`.
+Given a `neighbor_table`, construct the checkerboard decomposition, which results in the columns of `neighbor_table` being re-ordered in-place.
+Two additional arrays are also returned:
+- `perm::Vector{Int}`: The permutation used to re-order the columns of `neighbor_table` according to the checkerboard decomposition.
+- `colors::Matrix{Int}`: Marks the column indice boundaries for each checkerboard color in `neighbor_table`.
 """
 function checkerboard_decomposition!(neighbor_table::Matrix{Int})
 
@@ -18,13 +18,13 @@ function checkerboard_decomposition!(neighbor_table::Matrix{Int})
     # get perm to sort neighbor_table
     sorted_perm, swapped = _sort_neighbor_table!(neighbor_table)
 
-    # constrcut view to represent sorted neighbor_table
+    # apply the new sorted_perm permutation to neighbor_table
     @views @. neighbor_table = neighbor_table[:,sorted_perm]
 
     # construct checkerboard colors
     color_assignments = _checkerboard_colors(neighbor_table)
 
-    # get checkerboard perm
+    # get checkerboard perm by getting the permuation the sorts the color assignments
     checkerboard_perm = sortperm(color_assignments)
 
     # get final permutation for checkerboard decomposition
@@ -35,7 +35,7 @@ function checkerboard_decomposition!(neighbor_table::Matrix{Int})
     @views @. color_assignments = color_assignments[checkerboard_perm]
     @views @. swapped           = swapped[perm]
 
-    # undo the swaps in the neighbor table
+    # undo the swaps that occured in neighbor_table in the _sort_neighbor_table! method
     for n in 1:size(neighbor_table,2)
         if swapped[n]
             tmp                 = neighbor_table[1,n]
@@ -47,12 +47,11 @@ function checkerboard_decomposition!(neighbor_table::Matrix{Int})
     # number of checkerboard colors
     Ncolors = maximum(color_assignments)
 
-    # get the index bounds to construct views of neighbor_table
-    # corresponding to each checkerboard color
+    # get the column indice bounds that correspond to views of neighbor_table for each checkerboard color
     colors            = zeros(Int,2,Ncolors)
     colors[1,1]       = 1
     colors[2,Ncolors] = N
-    color             = 1
+    color             = 1 # keeps track of current color
     for n in 1:N
         if color != color_assignments[n]
             colors[2,color]   = n-1
@@ -68,17 +67,10 @@ end
 ## PRIVATE FUNCTIONS, NOT EXPORTED ##
 #####################################
 
-"""
-    sort_neighbor_table!(neighbor_table::Matrix{Int})::Vector{Int}
-
-Modifies `neighbor_table` in place such that in each column, the value in the
-second row is better than in the first row.
-Return the permuation `perm` that sorts `neighbor_table` such that the first row is
-in strictly ascending order, and for constant value in the first row the second row is
-also in ascending order.
-Also returns whether the values site indices appearing in each each column of `neighbor_table`
-were swapped during the sorting process.
-"""
+# Returns the permuation `perm` that sorts `neighbor_table` such that the first row is in strictly ascending order,
+# and for constant value in the first row the second row is also in ascending order.
+# Also returns an array indicating which columns of `neighbor_table` had the values in the first and second rows swapped.
+# Also modifies `neighbor_table` in place such that in each column the larger value is in the first row.
 function _sort_neighbor_table!(neighbor_table::Matrix{Int})
 
     @assert size(neighbor_table,1) == 2
@@ -112,12 +104,8 @@ function _sort_neighbor_table!(neighbor_table::Matrix{Int})
 end
 
 
-"""
-    checkerboard_colors(neighbor_table::Matrix{Int})
-
-Constructs the checkerboard decomposition for a given neighbor table.
-Really, this is really just an (inefficient) graph edge coloring algorithm.
-"""
+# Constructs the checkerboard decomposition for a given neighbor table.
+# This is really just an (inefficient) graph edge coloring algorithm.
 function _checkerboard_colors(neighbor_table::Matrix{Int})
 
     # declare color to store color/color assignments

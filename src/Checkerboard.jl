@@ -1,11 +1,14 @@
 module Checkerboard
 
 using LinearAlgebra
+using DocStringExtensions
 
-import Base: size
-import LinearAlgebra: mul!, rmul!, lmul!, ldiv!, transpose, inv
+import Base: size, transpose, inv
+import LinearAlgebra: mul!, rmul!, lmul!, ldiv!
 
 """
+    Continuous = Union{AbstractFloat, Complex{<:AbstractFloat}}
+
 Abstract type to represent continuous real or complex numbers.
 """
 Continuous = Union{AbstractFloat, Complex{<:AbstractFloat}}
@@ -21,7 +24,7 @@ export checkerboard_lmul!, checkerboard_rmul!
 export checkerboard_color_lmul!, checkerboard_color_rmul!
 
 # define CheckerboardMatrix type to represent the checkerboard decomposition matrix
-include("checkerboard_matrix.jl")
+include("CheckerboardMatrix.jl")
 export CheckerboardMatrix, update!
 
 end

@@ -4,8 +4,8 @@
 
 """
     function checkerboard_lmul!(B::AbstractMatrix{T}, neighbor_table::Matrix{Int},
-        coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T},
-        colors::Matrix{Int}; transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
+        coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
+        transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
 
 Evaluate the matrix-matrix product in-place `B=Γ⋅B` where `Γ` is the checkerboard matrix.
 """
@@ -36,8 +36,8 @@ end
 
 """
     function checkerboard_color_lmul!(B::AbstractMatrix{T}, color::Int, neighbor_table::Matrix{Int},
-        coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T},
-        colors::Matrix{Int}; inverted::Bool=false) where {T<:Continuous}
+        coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
+        inverted::Bool=false) where {T<:Continuous}
 
 Evaluate the matrix-matrix product in-place `B=Γ[c]⋅B` where `Γ[c]` is the `color` checkerboard color matrix.
 """
@@ -82,8 +82,8 @@ end
 
 """
     function checkerboard_rmul!(B::AbstractMatrix{T}, neighbor_table::Matrix{Int},
-        coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T},
-        colors::Matrix{Int}; transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
+        coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
+        transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
 
 Evaluate the matrix-matrix product in-place `B=B⋅Γ` where `Γ` is the checkerboard matrix.
 """
@@ -114,8 +114,8 @@ end
 
 """
     function checkerboard_color_rmul!(B::AbstractMatrix{T}, color::Int, neighbor_table::Matrix{Int},
-        coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T},
-        colors::Matrix{Int}; inverted::Bool=false) where {T<:Continuous}
+        coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
+        inverted::Bool=false) where {T<:Continuous}
 
 Evaluate the matrix-matrix product in-place `B=B⋅Γ[c]` where `Γ[c]` is the `color` checkerboard color matrix.
 """

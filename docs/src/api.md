@@ -1,21 +1,24 @@
 # API
 
-@docs"""
+```@docs
 Checkerboard.Continuous
 CheckerboardMatrix
 update!
-mul!
-ldiv!
-lmul!
-rmul!
-"""
+Base.size
+Base.transpose
+Base.inv
+LinearAlgebra.mul!
+LinearAlgebra.ldiv!
+LinearAlgebra.lmul!
+LinearAlgebra.rmul!
+```
 
 ## Low-level API
 
-@docs"""
+```@docs
 checkerboard_decomposition!
 checkerboard_lmul!
 checkerboard_rmul!
 checkerboard_color_lmul!
 checkerboard_color_rmul!
-"""
+```
