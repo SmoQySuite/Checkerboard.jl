@@ -2,4 +2,5 @@
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 Checkerboard = "b297549e-c8cb-44e5-9c33-b7e2667db6fc"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+LatticeUtilities = "33fcf0eb-3ae3-43db-bfbc-1d92a3639bd1"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"

@@ -5,11 +5,13 @@ This section demonstrates how to use the [Checkerboard.jl](https://github.com/co
 ## The Square Lattice
 
 As an example, we will demonstrate how to construct and apply the checkerboard decomposition method in the case
-of a square lattice with isotropic nearest-neighbor hopping. The first step is to import the relevant packages.
+of a square lattice with isotropic nearest-neighbor hopping.
+We begin by importing all relevant packages.
 
 ```@example square_lattice
 using LinearAlgebra
 using BenchmarkTools
+using LatticeUtilities
 using Checkerboard
 
 # set number of BLAS threads to 1 for fair benchmarking purposes.
@@ -20,37 +22,20 @@ The next step is to construct the neighbor table, and record the corresponding h
 for a square lattice with isotropic nearest-neighbor hopping.
 We also define a discretization in imaginary time ``\Delta\tau``, which is used as the
 small parameter in the checkerboard decomposition approximation.
+We will use the package [LatticeUtilities.jl](https://github.com/cohensbw/LatticeUtilities.jl)
+to assist with constructing the neighbor table.
 
 ```@example square_lattice
-# lattice size
-L = 12
+# construct square lattice neighbor table
+L       = 12 # lattice size
+square  = UnitCell(lattice_vecs = [[1.,0.],[0.,1.]], basis_vecs = [[0.,0.]])
+lattice = Lattice(L = [L,L], periodic = [true,true])
+bond_x  = Bond(orbitals = [1,1], displacement = [1,0])
+bond_y  = Bond(orbitals = [1,1], displacement = [0,1])
+nt      = build_neighbor_table([bond_x,bond_y], square, lattice)
+N       = get_num_sites(square, lattice)
 
-# number of sites in lattice
-N = L^2
-
-# vector to contain list of neighbors
-nt = Vector{Int}[]
-
-# add x direction neighbors
-for y in 1:L, x in 1:L
-    s  = (y-1)*L + x
-    x′ = mod1(x+1,L)
-    s′ = (y-1)*L + x′
-    push!(nt,[s,s′])
-end
-
-# add y direction neighbors
-for y in 1:L, x in 1:L
-    s  = (y-1)*L + x
-    y′ = mod1(y+1,L)
-    s′ = (y′-1)*L + x
-    push!(nt,[s,s′])
-end
-
-# final neighbor table
-nt = hcat(nt...)
-
-# corresponding hoppig for each pair of neighbors in the neighbor table
+# corresponding hopping for each pair of neighbors in the neighbor table
 t = fill(1.0, size(nt,2))
 
 # discretization in imaginary time i.e. the small parameter
@@ -60,17 +45,12 @@ t = fill(1.0, size(nt,2))
 nt
 ```
 
-While constructing the neighbor table was simple for a square lattice, constructing neighbor tables
-for more complicated lattice geometries can be very tricky. 
-That is why we would recommend using the [LatticeUtilities.jl](https://github.com/cohensbw/LatticeUtilities.jl)
-package to greatly simplify this task.
-
 Next, for comparison purposes, we explicitly construct the hopping matrix ``K`` and exponentiate it,
 giving us the exact matrix ``e^{-\Delta\tau K}`` that the checkerboard decomposition matrix
 ``\Gamma`` is intended to approximate.
 
 ```@example square_lattice
-K = zeros(Float64,N,N)
+K = zeros(Float64, N, N)
 for c in 1:size(nt,2)
     i      = nt[1,c]
     j      = nt[2,c]
@@ -90,7 +70,7 @@ decomposition matrix ``\Gamma`` can be instantiated as follows.
 nothing; # hide
 ```
 
-It is also straighforward to efficiently construct representations of both the trasnpose and inverse
+It is also straight forward to efficiently construct representations of both the transpose and inverse
 of the checkerboard matrix ``\Gamma`` using the [`transpose`](@ref) and [`inv`](@ref) methods.
 
 ```@example square_lattice
@@ -99,7 +79,7 @@ of the checkerboard matrix ``\Gamma`` using the [`transpose`](@ref) and [`inv`](
 nothing; # hide
 ```
 
-Matrix-matrix multiplications involvng ``\Gamma`` can be performed using the [`mul!`](@ref)
+Matrix-matrix multiplications involving ``\Gamma`` can be performed using the [`mul!`](@ref)
 method just as you would with a standard matrix. Here we benchmark the matrix-matrix multiplication
 using the checkerboard decomposition as compared to multiplication by the dense matrix ``e^{-\Delta\tau K}``.
 
@@ -152,15 +132,15 @@ It is also possible to multiply by a single one of the ``\Gamma_c`` matrices wit
 and [`rmul!`](@ref) methods.
 
 ```@example square_lattice
-Γ₁ = Matrix{Float64}(I,N,N)
-Γ₂ = Matrix{Float64}(I,N,N)
-Γ₃ = Matrix{Float64}(I,N,N)
-Γ₄ = Matrix{Float64}(I,N,N)
+Γ₁ = Matrix{Float64}(I, N, N)
+Γ₂ = Matrix{Float64}(I, N, N)
+Γ₃ = Matrix{Float64}(I, N, N)
+Γ₄ = Matrix{Float64}(I, N, N)
 
-mul!(Γ₁,Γ,I_dense,1)
-mul!(Γ₂,I_dense,Γ,2)
-lmul!(Γ,Γ₃,3)
-rmul!(Γ₄,Γ,4)
+mul!(Γ₁, Γ, I_dense, 1)
+mul!(Γ₂, I_dense, Γ, 2)
+lmul!(Γ, Γ₃, 3)
+rmul!(Γ₄, Γ, 4)
 
 Γ_dense ≈ (Γ₄*Γ₃*Γ₂*Γ₁)
 ```

@@ -1,25 +1,18 @@
 using LinearAlgebra
+using LatticeUtilities
 using Checkerboard
 using Test
 
 @testset "Checkerboard.jl" begin
     
     # construct square lattice neighbor table
-    L  = 12 # lattice size
-    nt = Vector{Int}[] # list of neighbors
-    for y in 1:L, x in 1:L # add x direction neighbors
-        s  = (y-1)*L + x
-        x′ = mod1(x+1,L)
-        s′ = (y-1)*L + x′
-        push!(nt,[s,s′])
-    end
-    for y in 1:L, x in 1:L # add y direction neighbors
-        s  = (y-1)*L + x
-        y′ = mod1(y+1,L)
-        s′ = (y′-1)*L + x
-        push!(nt,[s,s′])
-    end
-    nt = hcat(nt...) # final neighbor table
+    L       = 12 # lattice size
+    square  = UnitCell(lattice_vecs = [[1.,0.],[0.,1.]], basis_vecs = [[0.,0.]])
+    lattice = Lattice(L = [L,L], periodic = [true,true])
+    bond_x  = Bond(orbitals = [1,1], displacement = [1,0])
+    bond_y  = Bond(orbitals = [1,1], displacement = [0,1])
+    nt      = build_neighbor_table([bond_x,bond_y], square, lattice)
+    N       = get_num_sites(square, lattice)
 
     # corresponding hoppig for each pair of neighbors in the neighbor table
     t = fill(1.0, size(nt,2))
