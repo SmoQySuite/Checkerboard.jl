@@ -3,6 +3,7 @@
 ```@docs
 Checkerboard.Continuous
 CheckerboardMatrix
+checkerboard_matrices
 update!
 Base.size
 Base.transpose

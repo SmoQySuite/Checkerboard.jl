@@ -65,7 +65,7 @@ end
 Multiply in-place the vector `v` by the `color` checkerboard color matrix.
 """
 function checkerboard_color_lmul!(v::AbstractVector{T}, color::Int, neighbor_table::Matrix{Int}, coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T},
-    colors::Matrix{Int}; transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
+    colors::Matrix{Int}; inverted::Bool=false) where {T<:Continuous}
 
     # equals -1 for matrix inverse, +1 otherwise
     inverse = (1-2*inverted)
@@ -74,19 +74,14 @@ function checkerboard_color_lmul!(v::AbstractVector{T}, color::Int, neighbor_tab
     start = colors[1, color]
     stop  = colors[2, color]
 
-    # construct views for current checkerboard color
-    nt = @view neighbor_table[:,start:stop]
-    ch = @view coshΔτt[start:stop]
-    sh = @view sinhΔτt[start:stop]
-
     # iterate over neighbor pairs
-    @fastmath @inbounds  for n in start:step:stop
+    @fastmath @inbounds  for n in start:stop
         # get pair of neighbor sites
-        i = nt[1,n]
-        j = nt[2,n]
+        i = neighbor_table[1,n]
+        j = neighbor_table[2,n]
         # get the relevant cosh and sinh values
-        cᵢⱼ = ch[n]
-        sᵢⱼ = inverse * sh[n]
+        cᵢⱼ = coshΔτt[n]
+        sᵢⱼ = inverse * sinhΔτt[n]
         # get the initial matrix elements
         vᵢ = v[i]
         vⱼ = v[j]
@@ -109,13 +104,8 @@ function checkerboard_color_lmul!(v::AbstractVector{T}, color::Int, neighbor_tab
     start = colors[1, color]
     stop  = colors[2, color]
 
-    # construct views for current checkerboard color
-    nt = @view neighbor_table[:,start:stop]
-    ch = @view coshΔτt[start:stop]
-    sh = @view sinhΔτt[start:stop]
-
     # iterate over neighbor pairs
-    @fastmath @inbounds for n in start:step:stop
+    @fastmath @inbounds for n in start:stop
         # get pair of neighbor sites
         i = neighbor_table[1,n]
         j = neighbor_table[2,n]
@@ -150,13 +140,8 @@ function checkerboard_color_lmul!(v::AbstractVector{T}, color::Int, neighbor_tab
     start = colors[1, color]
     stop  = colors[2, color]
 
-    # construct views for current checkerboard color
-    nt = @view neighbor_table[:,start:stop]
-    ch = @view coshΔτt[start:stop]
-    sh = @view sinhΔτt[start:stop]
-
     # iterate over neighbor pairs
-    @fastmath @inbounds for n in start:step:stop
+    @fastmath @inbounds for n in start:stop
         # get pair of neighbor sites
         i = neighbor_table[1,n]
         j = neighbor_table[2,n]

@@ -85,6 +85,44 @@ function CheckerboardMatrix(Γ::CheckerboardMatrix{T}; transposed::Bool=false, i
     return CheckerboardMatrix{T}(transposed, inverted, Nsites, Nneighbors, Ncolors, neighbor_table, coshΔτt, sinhΔτt, perm, colors)
 end
 
+"""
+    checkerboard_matrices(neighbor_table::Matrix{Int}, t::AbstractMatrix{T}, Δτ::E;
+        transposed::Bool=false, inverted::Bool=false)
+
+Return a vector of `CheckerboardMatrix`, one for each column of `t`, all sharing the same `neighbor_table`.
+"""
+function checkerboard_matrices(neighbor_table::Matrix{Int}, t::AbstractMatrix{T}, Δτ::E;
+    transposed::Bool=false, inverted::Bool=false) where {T<:Continuous, E<:AbstractFloat}
+
+    @assert size(t,1) == size(neighbor_table,2)
+
+    # number of checkerboard matrices to construct
+    L = size(t,2)
+
+    # declare empty vector of checkerboard matrices
+    Γs = CheckerboardMatrix{T}[]
+
+    # declare intial checkerboard matrix
+    t₁ = @view t[:,1]
+    Γ₁ = CheckerboardMatrix(neighbor_table, t₁, Δτ, transposed=transposed, inverted=inverted)
+
+    # add first checkerboard matrix to vector
+    push!(Γs, Γ₁)
+
+    # add the rest of the checkerboard matrices to vector
+    for l in 2:L
+        
+        # construct next checkerboard matrix
+        Γₗ = CheckerboardMatrix(Γ₁, new_matrix=true)
+        tₗ = @view t[:,l]
+        update!(Γₗ, tₗ, Δτ)
+
+        # add new checkerboard matrix to vector
+        push!(Γs, Γₗ)
+    end
+
+    return Γs
+end
 
 """
     update!(Γ::CheckerboardMatrix{T}, t::AbstractVector{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
@@ -99,10 +137,30 @@ function update!(Γ::CheckerboardMatrix{T}, t::AbstractVector{T}, Δτ::E) where
     return nothing
 end
 
+"""
+    update!(Γs::AbstractVector{CheckerboardMatrix{T}}, t::AbstractVector{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
+
+Update a vector of `CheckerboardMatrix` based on new hopping parameters `t` and discretezation in imaginary time `Δτ`. 
+"""
+function update!(Γs::AbstractVector{CheckerboardMatrix{T}}, t::AbstractMatrix{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
+
+    @assert length(Γs) == size(t,2)
+    @assert Γs[1].Nneighbors == size(t,1)
+
+    for l in eachindex(Γs)
+        Γₗ = Γs[l]
+        tₗ = @view t[:,l]
+        update!(Γₗ, tₗ, Δτ)
+    end
+
+    return nothing
+end
+
 update!(Γ; t, Δτ) = update!(Γ, t, Δτ)
 
 """
-    update!(Γ::CheckerboardMatrix{T}, t::AbstractVector{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
+    update!(coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T},
+        t::AbstractVector{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
 
 Update the `coshΔτt` and `sinhΔτt` associated with a checkerboard decomposition based on new hopping parameters
 `t` and discretezation in imaginary time `Δτ`. 
@@ -116,7 +174,7 @@ function update!(coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, t::
     return nothing
 end
 
-update!(; coshΔτt, sinhΔτt, t, Δτ) = update!(coshΔτt, sinhΔτt, t, Δτ)
+update!(; coshΔτt, sinhΔτt, t, perm, Δτ) = update!(coshΔτt, sinhΔτt, t, perm, Δτ)
 
 
 ########################
@@ -199,7 +257,6 @@ the `color` checkerboard color matrix.
 """
 function mul!(A::AbstractMatrix, Γ::CheckerboardMatrix, B::AbstractMatrix, color::Int)
 
-    (; transposed, inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
     copyto!(A,B)
     lmul!(Γ,A,color)
 
@@ -255,9 +312,9 @@ Evaluate the matrix-vector product `u=Γ⁻¹[c]⋅v` where `Γ⁻¹[c]` is the 
 """
 function ldiv!(u::AbstractVector, Γ::CheckerboardMatrix, v::AbstractVector, color::Int)
 
-    (; transposed, inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
+    (; inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
     copyto!(u,v)
-    checkerboard_color_lmul!(u, neighbor_table, coshΔτt, sinhΔτt, colors, inverted=!inverted)
+    checkerboard_color_lmul!(u, color, neighbor_table, coshΔτt, sinhΔτt, colors, inverted=!inverted)
 
     return nothing
 end
@@ -284,7 +341,7 @@ Evaluate the matrix-matrix product `A=Γ⁻¹[c]⋅B` where `Γ⁻¹[c]` is the 
 """
 function ldiv!(A::AbstractMatrix, Γ::CheckerboardMatrix, B::AbstractMatrix, color::Int)
 
-    (; transposed, inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
+    (; inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
     copyto!(A,B)
     checkerboard_color_lmul!(A, color, neighbor_table, coshΔτt, sinhΔτt, colors, inverted=!inverted)
 
@@ -313,7 +370,7 @@ Evaluate in-place the matrix-matrix product `A=Γ[c]⋅A`, where `Γ[c]` is the 
 """
 function lmul!(Γ::CheckerboardMatrix, A::AbstractMatrix, color::Int)
 
-    (; transposed, inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
+    (; inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
     checkerboard_color_lmul!(A, color, neighbor_table, coshΔτt, sinhΔτt, colors, inverted=inverted)
 
     return nothing
@@ -341,7 +398,7 @@ Evaluate in-place the matrix-matrix product `A=A⋅Γ[c]`, where `Γ[c]` is the 
 """
 function rmul!(A::AbstractMatrix, Γ::CheckerboardMatrix, color::Int)
 
-    (; transposed, inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
+    (; inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
     checkerboard_color_rmul!(A, color, neighbor_table, coshΔτt, sinhΔτt, colors, inverted=inverted)
 
     return nothing

@@ -25,6 +25,6 @@ export checkerboard_color_lmul!, checkerboard_color_rmul!
 
 # define CheckerboardMatrix type to represent the checkerboard decomposition matrix
 include("CheckerboardMatrix.jl")
-export CheckerboardMatrix, update!
+export CheckerboardMatrix, checkerboard_matrices, update!
 
 end

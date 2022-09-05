@@ -64,5 +64,4 @@ using Test
     mul!(A,Γ,C)
     mul!(B,C,Γ)
     @test !(A ≈ B)
-
 end
