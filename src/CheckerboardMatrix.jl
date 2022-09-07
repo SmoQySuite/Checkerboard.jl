@@ -194,9 +194,17 @@ size(Γ::CheckerboardMatrix, dim::Int) = Γ.Nsites
 """
     transpose(Γ::CheckerboardMatrix)
 
-Return a transposed version of the checkerboard matrix `Γ`.
+Return a transposed/adjoint version of the checkerboard matrix `Γ`.
 """
 transpose(Γ::CheckerboardMatrix) = CheckerboardMatrix(Γ, transposed=!Γ.transposed)
+
+
+"""
+    adjoint(Γ::CheckerboardMatrix)
+
+Return a transposed/adjoint version of the checkerboard matrix `Γ`.
+"""
+adjoint(Γ::CheckerboardMatrix) = CheckerboardMatrix(Γ, transposed=!Γ.transposed)
 
 
 """

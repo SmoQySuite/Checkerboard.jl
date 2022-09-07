@@ -7,6 +7,7 @@ checkerboard_matrices
 update!
 Base.size
 Base.transpose
+Base.adjoint
 Base.inv
 LinearAlgebra.mul!
 LinearAlgebra.ldiv!

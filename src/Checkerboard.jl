@@ -3,7 +3,7 @@ module Checkerboard
 using LinearAlgebra
 using DocStringExtensions
 
-import Base: size, transpose, inv
+import Base: size, transpose, inv, adjoint
 import LinearAlgebra: mul!, rmul!, lmul!, ldiv!
 
 """
