@@ -1,4 +1,11 @@
 """
+    AbstractVecOrMat{T} = Union{AbstractVector{T}, AbstractMatrix{T}}
+
+Abstract type defining union of `AbstractVector` and `AbstractMatrix`.
+"""
+AbstractVecOrMat{T} = Union{AbstractVector{T}, AbstractMatrix{T}}
+
+"""
     CheckerboardMatrix{T<:Union{AbstractFloat, Complex{<:AbstractFloat}}}
 
 A type to represent a checkerboard decomposition matrix.
@@ -63,7 +70,7 @@ function CheckerboardMatrix(neighbor_table::Matrix{Int}, t::AbstractVector{T}, �
 end
 
 """
-    CheckerboardMatrix(Γ::CheckerboardMatrix; transposed::Bool=false, inverted::Bool=false)
+    CheckerboardMatrix(Γ::CheckerboardMatrix; transposed::Bool=false, inverted::Bool=false, new_matrix::Bool=false)
 
 Construct a new instance of `CheckerboardMatrix` based on a current instance `Γ` of `CheckerboardMatrix`.
 If `new_matrix=true` then allocate new `coshΔτt` and `sinhΔτt` arrays.
@@ -159,8 +166,7 @@ end
 update!(Γ; t, Δτ) = update!(Γ, t, Δτ)
 
 """
-    update!(coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T},
-        t::AbstractVector{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
+    update!(coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, t::AbstractVector{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
 
 Update the `coshΔτt` and `sinhΔτt` associated with a checkerboard decomposition based on new hopping parameters
 `t` and discretezation in imaginary time `Δτ`. 
@@ -183,6 +189,7 @@ update!(; coshΔτt, sinhΔτt, t, perm, Δτ) = update!(coshΔτt, sinhΔτt, t
 
 """
     size(Γ::CheckerboardMatrix)
+    
     size(Γ::CheckerboardMatrix, dim::Int)
 
 Return the dimensions of the checkerboard decomposition matrix `Γ`.
@@ -216,198 +223,221 @@ inv(Γ::CheckerboardMatrix) = CheckerboardMatrix(Γ, inverted=!Γ.inverted)
 
 
 """
-    mul!(u::AbstractVector, Γ::CheckerboardMatrix, v::AbstractVector)
+    mul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat)
 
-Evaluate the matrix-vector product `u=Γ⋅v`.
+Evaluate the matrix-vector or matrix-matrix product `u=Γ⋅v`.
 """
-function mul!(u::AbstractVector, Γ::CheckerboardMatrix, v::AbstractVector)
+function mul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat)
+
+    copyto!(u, v)
+    lmul!(Γ, u)
+
+    return nothing
+end
+
+"""
+    mul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat, color::Int)
+
+Evaluate the matrix-vector or matrix-matrix product `u=Γ[c]⋅v` where `Γ[c]` is the matrix
+associated with the `color` checkerboard color matrix.
+"""
+function mul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat, color::Int)
+
+    copyto!(u, v)
+    lmul!(Γ, u, color)
+
+    return nothing
+end
+
+"""
+    mul!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix)
+
+Evaluate the matrix-vector or matrix-matrix product `u=v⋅Γ`.
+"""
+function mul!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix)
+
+    copyto!(u, v)
+    rmul!(u, Γ)
+
+    return nothing
+end
+
+"""
+    mul!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix, color::Int)
+
+Evaluate the matrix-vector or matrix-matrix product `u=v⋅Γ[c]` where `Γ[c]` is the matrix
+associated with the `color` checkerboard color matrix.
+"""
+function mul!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix, color::Int)
+
+    copyto!(u, v)
+    rmul!(u, Γ, color)
+
+    return nothing
+end
+
+
+"""
+    lmul!(Γ::CheckerboardMatrix, u::AbstractVecOrMat)
+
+Evaluate in-place the matrix-vector or matrix-matrix product `u=Γ⋅u`, where `u` gets over-written.
+"""
+function lmul!(Γ::CheckerboardMatrix, u::AbstractVecOrMat)
 
     (; transposed, inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
-    copyto!(u,v)
     checkerboard_lmul!(u, neighbor_table, coshΔτt, sinhΔτt, colors, transposed=transposed, inverted=inverted)
 
     return nothing
 end
 
 """
-    mul!(u::AbstractVector, Γ::CheckerboardMatrix, v::AbstractVector, color::Int)
+    lmul!(Γ::CheckerboardMatrix, u::AbstractVecOrMat, color::Int)
 
-Evaluate the matrix-vector product `u=Γ[c]⋅v` where `Γ[c]` is the matrix associated with
-the `color` checkerboard color matrix.
+Evaluate in-place the matrix-vector or matrix-matrix product `u=Γ[c]⋅u`, where `Γ[c]` is the matrix
+associated with the `color` checkerboard color matrix.
 """
-function mul!(u::AbstractVector, Γ::CheckerboardMatrix, v::AbstractVector, color::Int)
+function lmul!(Γ::CheckerboardMatrix, u::AbstractVecOrMat, color::Int)
 
-    (; transposed, inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
-    copyto!(u,v)
+    (; inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
     checkerboard_color_lmul!(u, color, neighbor_table, coshΔτt, sinhΔτt, colors, inverted=inverted)
 
     return nothing
 end
 
-"""
-    mul!(A::AbstractMatrix, Γ::CheckerboardMatrix, B::AbstractMatrix)
-
-Evaluate the matrix-matrix product `A=Γ⋅B`.
-"""
-function mul!(A::AbstractMatrix, Γ::CheckerboardMatrix, B::AbstractMatrix)
-
-    copyto!(A,B)
-    lmul!(Γ,A)
-
-    return nothing
-end
 
 """
-    mul!(A::AbstractMatrix, Γ::CheckerboardMatrix, B::AbstractMatrix, color::Int)
+    rmul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix)
 
-Evaluate the matrix-matrix product `A=Γ[c]⋅B` where `Γ[c]` is the matrix associated with
-the `color` checkerboard color matrix.
+Evaluate in-place the matrix-vector or matrix-matrix product `u=u⋅Γ`, where `u` gets over-written.
 """
-function mul!(A::AbstractMatrix, Γ::CheckerboardMatrix, B::AbstractMatrix, color::Int)
-
-    copyto!(A,B)
-    lmul!(Γ,A,color)
-
-    return nothing
-end
-
-"""
-    mul!(A::AbstractMatrix, B::AbstractMatrix, Γ::CheckerboardMatrix)
-
-Evaluate the matrix-matrix product `A=B⋅Γ`.
-"""
-function mul!(A::AbstractMatrix, B::AbstractMatrix, Γ::CheckerboardMatrix)
-
-    copyto!(A,B)
-    rmul!(A,Γ)
-
-    return nothing
-end
-
-"""
-    mul!(A::AbstractMatrix, B::AbstractMatrix, Γ::CheckerboardMatrix, color::Int)
-
-Evaluate the matrix-matrix product `A=B⋅Γ[c]` where `Γ[c]` is the matrix associated with
-the `color` checkerboard color matrix.
-"""
-function mul!(A::AbstractMatrix, B::AbstractMatrix, Γ::CheckerboardMatrix, color::Int)
-
-    copyto!(A,B)
-    rmul!(A,Γ,color)
-
-    return nothing
-end
-
-"""
-    ldiv!(u::AbstractVector, Γ::CheckerboardMatrix, v::AbstractVector)
-
-Evaluate the matrix-vector product `u=Γ⁻¹⋅v`.
-"""
-function ldiv!(u::AbstractVector, Γ::CheckerboardMatrix, v::AbstractVector)
+function rmul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix)
 
     (; transposed, inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
+    checkerboard_rmul!(u, neighbor_table, coshΔτt, sinhΔτt, colors, transposed=transposed, inverted=inverted)
+
+    return nothing
+end
+
+"""
+    rmul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, color::Int)
+
+Evaluate in-place the matrix-vector or matrix-matrix product `u=u⋅Γ[c]`, where `Γ[c]` is the
+matrix associated with the `color` checkerboard color matrix.
+"""
+function rmul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, color::Int)
+
+    (; inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
+    checkerboard_color_rmul!(u, color, neighbor_table, coshΔτt, sinhΔτt, colors, inverted=inverted)
+
+    return nothing
+end
+
+
+"""
+    ldiv!(Γ::CheckerboardMatrix, v::AbstractVecOrMat)
+
+Evaluate in-place the matrix-vector or matrix-matrix product `v=Γ⁻¹⋅v`.
+"""
+function ldiv!(Γ::CheckerboardMatrix, v::AbstractVecOrMat)
+
+    (; transposed, inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
+    checkerboard_lmul!(v, neighbor_table, coshΔτt, sinhΔτt, colors, transposed=transposed, inverted=!inverted)
+
+    return nothing
+end
+
+"""
+    ldiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat)
+
+Evaluate the matrix-vector or matrix-matrix product `u=Γ⁻¹⋅v`.
+"""
+function ldiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat)
+
     copyto!(u,v)
-    checkerboard_lmul!(u, neighbor_table, coshΔτt, sinhΔτt, colors, transposed=transposed, inverted=!inverted)
+    ldiv!(Γ, u)
 
     return nothing
 end
 
 """
-    ldiv!(u::AbstractVector, Γ::CheckerboardMatrix, v::AbstractVector, color::Int)
+    ldiv!(Γ::CheckerboardMatrix, v::AbstractVecOrMat, color::Int)
 
-Evaluate the matrix-vector product `u=Γ⁻¹[c]⋅v` where `Γ⁻¹[c]` is the inverse of the matrix associated with the
-`color` checkerboard color matrix.
+Evaluate in-place the matrix-vector or matrix-matrix product `v=Γ⁻¹[c]⋅v` where `Γ⁻¹[c]` is the inverse
+of the matrix associated with the `color` checkerboard color matrix.
 """
-function ldiv!(u::AbstractVector, Γ::CheckerboardMatrix, v::AbstractVector, color::Int)
+function ldiv!(Γ::CheckerboardMatrix, v::AbstractVecOrMat, color::Int)
 
     (; inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
+    checkerboard_color_lmul!(v, color, neighbor_table, coshΔτt, sinhΔτt, colors, inverted=!inverted)
+
+    return nothing
+end
+
+"""
+    ldiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat, color::Int)
+
+Evaluate the matrix-vector or matrix-matrix product `u=Γ⁻¹[c]⋅v` where `Γ⁻¹[c]` is the inverse of the
+matrix associated with the `color` checkerboard color matrix.
+"""
+function ldiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat, color::Int)
+
     copyto!(u,v)
-    checkerboard_color_lmul!(u, color, neighbor_table, coshΔτt, sinhΔτt, colors, inverted=!inverted)
+    ldiv!(Γ, u, color)
 
     return nothing
 end
 
-"""
-    ldiv!(A::AbstractVector, Γ::CheckerboardMatrix, B::AbstractVector)
 
-Evaluate the matrix-matrix product `A=Γ⁻¹⋅B`.
 """
-function ldiv!(A::AbstractMatrix, Γ::CheckerboardMatrix, B::AbstractMatrix)
+    rdiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix)
+
+Evaluate in-place the matrix-vector or matrix-matrix product `u=u⋅Γ⁻¹`, where `u` gets over-written.
+"""
+function rdiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix)
 
     (; transposed, inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
-    copyto!(A,B)
-    checkerboard_lmul!(A, neighbor_table, coshΔτt, sinhΔτt, colors, transposed=transposed, inverted=!inverted)
+    checkerboard_rmul!(u, neighbor_table, coshΔτt, sinhΔτt, colors, transposed=transposed, inverted=!inverted)
 
     return nothing
 end
 
 """
-    ldiv!(A::AbstractVector, Γ::CheckerboardMatrix, B::AbstractVector, color::Int)
+    rdiv!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix)
 
-Evaluate the matrix-matrix product `A=Γ⁻¹[c]⋅B` where `Γ⁻¹[c]` is the inverse of the matrix associated with the
-`color` checkerboard color matrix.
+Evaluate the matrix-vector or matrix-matrix product `u=v⋅Γ⁻¹`, where `u` gets over-written.
 """
-function ldiv!(A::AbstractMatrix, Γ::CheckerboardMatrix, B::AbstractMatrix, color::Int)
+function rdiv!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix)
+
+    copyto!(u, v)
+    rdiv!(u, Γ)
+
+    return nothing
+end
+
+"""
+    rdiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, color::Int)
+
+Evaluate in-place the matrix-vector or matrix-matrix product `u=u⋅Γ⁻¹[c]`, where `Γ[c]` is the
+matrix associated with the `color` checkerboard color matrix.
+"""
+function rdiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, color::Int)
 
     (; inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
-    copyto!(A,B)
-    checkerboard_color_lmul!(A, color, neighbor_table, coshΔτt, sinhΔτt, colors, inverted=!inverted)
-
-    return nothing
-end
-
-
-"""
-    lmul!(Γ::CheckerboardMatrix, A::AbstractMatrix)
-
-Evaluate in-place the matrix-matrix product `A=Γ⋅A`, where `A` gets over-written.
-"""
-function lmul!(Γ::CheckerboardMatrix, A::AbstractMatrix)
-
-    (; transposed, inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
-    checkerboard_lmul!(A, neighbor_table, coshΔτt, sinhΔτt, colors, transposed=transposed, inverted=inverted)
+    checkerboard_color_rmul!(u, color, neighbor_table, coshΔτt, sinhΔτt, colors, inverted=!inverted)
 
     return nothing
 end
 
 """
-    lmul!(Γ::CheckerboardMatrix, A::AbstractMatrix, color::Int)
+    rdiv!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix, color::Int)
 
-Evaluate in-place the matrix-matrix product `A=Γ[c]⋅A`, where `Γ[c]` is the matrix associated with the
-`color` checkerboard color matrix.
+Evaluate the matrix-vector or matrix-matrix product `u=v⋅Γ⁻¹[c]`, where `Γ[c]` is the
+matrix associated with the `color` checkerboard color matrix.
 """
-function lmul!(Γ::CheckerboardMatrix, A::AbstractMatrix, color::Int)
+function rdiv!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix, color::Int)
 
-    (; inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
-    checkerboard_color_lmul!(A, color, neighbor_table, coshΔτt, sinhΔτt, colors, inverted=inverted)
-
-    return nothing
-end
-
-
-"""
-    rmul!(A::AbstractMatrix, Γ::CheckerboardMatrix)
-
-Evaluate in-place the matrix-matrix product `A=A⋅Γ`, where `A` gets over-written.
-"""
-function rmul!(A::AbstractMatrix, Γ::CheckerboardMatrix)
-
-    (; transposed, inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
-    checkerboard_rmul!(A, neighbor_table, coshΔτt, sinhΔτt, colors, transposed=transposed, inverted=inverted)
-
-    return nothing
-end
-
-"""
-    rmul!(A::AbstractMatrix, Γ::CheckerboardMatrix, color::Int)
-
-Evaluate in-place the matrix-matrix product `A=A⋅Γ[c]`, where `Γ[c]` is the matrix associated with the
-`color` checkerboard color matrix.
-"""
-function rmul!(A::AbstractMatrix, Γ::CheckerboardMatrix, color::Int)
-
-    (; inverted, neighbor_table, coshΔτt, sinhΔτt, colors) = Γ
-    checkerboard_color_rmul!(A, color, neighbor_table, coshΔτt, sinhΔτt, colors, inverted=inverted)
+    copyto!(u,v)
+    rdiv!(u, Γ, color)
 
     return nothing
 end

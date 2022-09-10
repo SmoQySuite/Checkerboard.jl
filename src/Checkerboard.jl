@@ -4,7 +4,7 @@ using LinearAlgebra
 using DocStringExtensions
 
 import Base: size, transpose, inv, adjoint
-import LinearAlgebra: mul!, rmul!, lmul!, ldiv!
+import LinearAlgebra: mul!, rmul!, lmul!, ldiv!, rdiv!
 
 """
     Continuous = Union{AbstractFloat, Complex{<:AbstractFloat}}

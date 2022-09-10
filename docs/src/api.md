@@ -1,23 +1,54 @@
 # API
 
+## Checkerboard Matrix Type
+
+- [`CheckerboardMatrix`](@ref)
+- [`checkerboard_matrices`](@ref)
+- [`update!`](@ref)
+
 ```@docs
-Checkerboard.Continuous
 CheckerboardMatrix
 checkerboard_matrices
 update!
+```
+
+## Overloaded Functions
+
+- [`size`](@ref)
+- [`transpose`](@ref)
+- [`adjoint`](@ref)
+- [`inv`](@ref)
+- [`mul!`](@ref)
+- [`lmul!`](@ref)
+- [`rmul!`](@ref)
+- [`ldiv!`](@ref)
+- [`rdiv!`](@ref)
+
+```@docs
 Base.size
 Base.transpose
 Base.adjoint
 Base.inv
 LinearAlgebra.mul!
-LinearAlgebra.ldiv!
 LinearAlgebra.lmul!
 LinearAlgebra.rmul!
+LinearAlgebra.ldiv!
+LinearAlgebra.rdiv!
 ```
 
-## Low-level API
+## Developer API
+
+- [`Checkerboard.Continuous`](@ref)
+- [`Checkerboard.AbstractVecOrMat`](@ref)
+- [`checkerboard_decomposition!`](@ref)
+- [`checkerboard_lmul!`](@ref)
+- [`checkerboard_rmul!`](@ref)
+- [`checkerboard_color_lmul!`](@ref)
+- [`checkerboard_color_rmul!`](@ref)
 
 ```@docs
+Checkerboard.AbstractVecOrMat
+Checkerboard.Continuous
 checkerboard_decomposition!
 checkerboard_lmul!
 checkerboard_rmul!

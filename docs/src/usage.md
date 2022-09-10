@@ -83,13 +83,13 @@ Matrix-matrix multiplications involving ``\Gamma`` can be performed using the [`
 method just as you would with a standard matrix. Here we benchmark the matrix-matrix multiplication
 using the checkerboard decomposition as compared to multiplication by the dense matrix ``e^{-\Delta\tau K}``.
 
-```@example square_lattice
+```julia
 I_dense = Matrix{Float64}(I,N,N)
 B       = similar(I_dense)
-@btime mul!(B, expnΔτK, I_dense);
-@btime mul!(B, I_dense, expnΔτK);
-@btime mul!(B, Γ,       I_dense);
-@btime mul!(B, I_dense, Γ);
+@btime mul!(B, expnΔτK, I_dense); # 131.958 μs (0 allocations: 0 bytes)
+@btime mul!(B, I_dense, expnΔτK); # 129.375 μs (0 allocations: 0 bytes)
+@btime mul!(B, Γ,       I_dense); # 38.334 μs (0 allocations: 0 bytes)
+@btime mul!(B, I_dense, Γ); # 17.500 μs (0 allocations: 0 bytes)
 ```
 
 Using the [@btime](https://juliaci.github.io/BenchmarkTools.jl/stable/reference/#BenchmarkTools.@btime-Tuple) macro
