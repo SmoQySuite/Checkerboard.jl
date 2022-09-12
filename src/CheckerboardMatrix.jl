@@ -55,7 +55,7 @@ Given a `neighbor_table` along with the corresponding hopping amplitudes `t` and
 in imaginary time `Δτ`, construct an instance of the type `CheckerboardMatrix`. 
 """
 function CheckerboardMatrix(neighbor_table::Matrix{Int}, t::AbstractVector{T}, Δτ::E;
-    transposed::Bool=false, inverted::Bool=false) where {T<:Continuous, E<:AbstractFloat}
+    transposed::Bool=false, inverted::Bool=false) where {T, E<:AbstractFloat}
 
     nt           = deepcopy(neighbor_table)
     perm, colors = checkerboard_decomposition!(nt)
@@ -70,7 +70,8 @@ function CheckerboardMatrix(neighbor_table::Matrix{Int}, t::AbstractVector{T}, �
 end
 
 """
-    CheckerboardMatrix(Γ::CheckerboardMatrix; transposed::Bool=false, inverted::Bool=false, new_matrix::Bool=false)
+    CheckerboardMatrix(Γ::CheckerboardMatrix;
+        transposed::Bool=false, inverted::Bool=false, new_matrix::Bool=false)
 
 Construct a new instance of `CheckerboardMatrix` based on a current instance `Γ` of `CheckerboardMatrix`.
 If `new_matrix=true` then allocate new `coshΔτt` and `sinhΔτt` arrays.

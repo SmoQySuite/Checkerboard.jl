@@ -1,7 +1,7 @@
 name = "Checkerboard"
 uuid = "b297549e-c8cb-44e5-9c33-b7e2667db6fc"
 authors = ["Benjamin Cohen-Stead <benwcs@gmail.com>"]
-version = "1.2.0"
+version = "1.2.1"
 
 [deps]
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"

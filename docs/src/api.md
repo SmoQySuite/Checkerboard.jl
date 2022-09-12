@@ -8,6 +8,8 @@
 
 ```@docs
 CheckerboardMatrix
+CheckerboardMatrix(::Matrix{Int}, ::AbstractVector{T}, ::E; ::Bool, ::Bool) where {T, E<:AbstractFloat}
+CheckerboardMatrix(::CheckerboardMatrix{T}; ::Bool, ::Bool, new_matrix::Bool=false) where {T}
 checkerboard_matrices
 update!
 ```
