@@ -1,17 +1,28 @@
-"""
+@doc raw"""
     AbstractVecOrMat{T} = Union{AbstractVector{T}, AbstractMatrix{T}}
 
 Abstract type defining union of `AbstractVector` and `AbstractMatrix`.
 """
 AbstractVecOrMat{T} = Union{AbstractVector{T}, AbstractMatrix{T}}
 
-"""
+@doc raw"""
     CheckerboardMatrix{T<:Union{AbstractFloat, Complex{<:AbstractFloat}}}
 
 A type to represent a checkerboard decomposition matrix.
 
 # Fields
-$(TYPEDFIELDS)
+
+- `transposed::Bool`: If the checkerboard matrix is transposed.
+- `inverted::Bool`: If the checkerboard matrix is inverted.
+- `Nsites::Int`: Number of sites/orbitals in lattice.
+- `Nneighbors::Int`: Number of neighbors.
+- `Ncolors::Int`: Number of checkerboard colors/groups.
+- `neighbor_table::Matrix{Int}`: Neighbor table represented by a `(2,Nneighbors)` dimension matrix, where each column contains a pair of neighboring sites.
+- `coshΔτt::Vector{T}`: The ``\cosh(\Delta\tau t)`` values.
+- `sinhΔτt::Vector{T}`: The ``\sinh(\Delta\tau t)`` values.
+- `perm::Vector{Int}`: The checkerboard permutation order relative to the ordering of the original neighbor table.
+- `inv_perm::Vector{Int}`: Inverse permuation of `perm`.
+- `colors::Matrix{Int}`: The bounds of each checkerboard color/group in `neighbor_table`.
 """
 struct CheckerboardMatrix{T<:Continuous}
     
@@ -43,11 +54,14 @@ struct CheckerboardMatrix{T<:Continuous}
     "The checkerboard permutation order relative to the ordering of the original neighbor table."
     perm::Vector{Int}
 
+    "Inverse of permuation of `perm` field."
+    inv_perm::Vector{Int}
+
     "The bounds of each checkerboard color/group in `neighbor_table`."
     colors::Matrix{Int}
 end
 
-"""
+@doc raw"""
     CheckerboardMatrix(neighbor_table::Matrix{Int}, t::AbstractVector{T}, Δτ::E;
         transposed::Bool=false, inverted::Bool=false) where {T<:Continuous, E<:AbstractFloat}
 
@@ -59,6 +73,7 @@ function CheckerboardMatrix(neighbor_table::Matrix{Int}, t::AbstractVector{T}, �
 
     nt           = deepcopy(neighbor_table)
     perm, colors = checkerboard_decomposition!(nt)
+    inv_perm     = invperm(perm)
     Nsites       = maximum(nt)
     Nneighbors   = size(nt,2)
     Ncolors      = size(colors,2)
@@ -66,10 +81,10 @@ function CheckerboardMatrix(neighbor_table::Matrix{Int}, t::AbstractVector{T}, �
     sinhΔτt      = zeros(T,Nneighbors)
     update!(coshΔτt, sinhΔτt, t, perm, Δτ)
 
-    return CheckerboardMatrix{T}(transposed, inverted, Nsites, Nneighbors, Ncolors, nt, coshΔτt, sinhΔτt, perm, colors)
+    return CheckerboardMatrix{T}(transposed, inverted, Nsites, Nneighbors, Ncolors, nt, coshΔτt, sinhΔτt, perm, inv_perm, colors)
 end
 
-"""
+@doc raw"""
     CheckerboardMatrix(Γ::CheckerboardMatrix;
         transposed::Bool=false, inverted::Bool=false, new_matrix::Bool=false)
 
@@ -78,7 +93,7 @@ If `new_matrix=true` then allocate new `coshΔτt` and `sinhΔτt` arrays.
 """
 function CheckerboardMatrix(Γ::CheckerboardMatrix{T}; transposed::Bool=false, inverted::Bool=false, new_matrix::Bool=false) where {T}
 
-    (; Nsites, Nneighbors, Ncolors, neighbor_table, perm, colors) = Γ
+    (; Nsites, Nneighbors, Ncolors, neighbor_table, perm, inv_perm, colors) = Γ
 
     if new_matrix
         coshΔτt = similar(Γ.coshΔτt)
@@ -90,10 +105,10 @@ function CheckerboardMatrix(Γ::CheckerboardMatrix{T}; transposed::Bool=false, i
         sinhΔτt = Γ.sinhΔτt
     end
 
-    return CheckerboardMatrix{T}(transposed, inverted, Nsites, Nneighbors, Ncolors, neighbor_table, coshΔτt, sinhΔτt, perm, colors)
+    return CheckerboardMatrix{T}(transposed, inverted, Nsites, Nneighbors, Ncolors, neighbor_table, coshΔτt, sinhΔτt, perm, inv_perm, colors)
 end
 
-"""
+@doc raw"""
     checkerboard_matrices(neighbor_table::Matrix{Int}, t::AbstractMatrix{T}, Δτ::E;
         transposed::Bool=false, inverted::Bool=false)
 
@@ -132,7 +147,7 @@ function checkerboard_matrices(neighbor_table::Matrix{Int}, t::AbstractMatrix{T}
     return Γs
 end
 
-"""
+@doc raw"""
     update!(Γ::CheckerboardMatrix{T}, t::AbstractVector{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
 
 Update the `CheckerboardMatrix` based on new hopping parameters `t` and discretezation in imaginary time `Δτ`. 
@@ -145,7 +160,7 @@ function update!(Γ::CheckerboardMatrix{T}, t::AbstractVector{T}, Δτ::E) where
     return nothing
 end
 
-"""
+@doc raw"""
     update!(Γs::AbstractVector{CheckerboardMatrix{T}}, t::AbstractVector{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
 
 Update a vector of `CheckerboardMatrix` based on new hopping parameters `t` and discretezation in imaginary time `Δτ`. 
@@ -166,7 +181,7 @@ end
 
 update!(Γ; t, Δτ) = update!(Γ, t, Δτ)
 
-"""
+@doc raw"""
     update!(coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, t::AbstractVector{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
 
 Update the `coshΔτt` and `sinhΔτt` associated with a checkerboard decomposition based on new hopping parameters
@@ -188,7 +203,7 @@ update!(; coshΔτt, sinhΔτt, t, perm, Δτ) = update!(coshΔτt, sinhΔτt, t
 ## OVERLOADNG METHODS ##
 ########################
 
-"""
+@doc raw"""
     size(Γ::CheckerboardMatrix)
     
     size(Γ::CheckerboardMatrix, dim::Int)
@@ -199,7 +214,7 @@ size(Γ::CheckerboardMatrix) = (Γ.Nsites, Γ.Nsites)
 size(Γ::CheckerboardMatrix, dim::Int) = Γ.Nsites
 
 
-"""
+@doc raw"""
     transpose(Γ::CheckerboardMatrix)
 
 Return a transposed/adjoint version of the checkerboard matrix `Γ`.
@@ -207,7 +222,7 @@ Return a transposed/adjoint version of the checkerboard matrix `Γ`.
 transpose(Γ::CheckerboardMatrix) = CheckerboardMatrix(Γ, transposed=!Γ.transposed)
 
 
-"""
+@doc raw"""
     adjoint(Γ::CheckerboardMatrix)
 
 Return a transposed/adjoint version of the checkerboard matrix `Γ`.
@@ -215,7 +230,7 @@ Return a transposed/adjoint version of the checkerboard matrix `Γ`.
 adjoint(Γ::CheckerboardMatrix) = CheckerboardMatrix(Γ, transposed=!Γ.transposed)
 
 
-"""
+@doc raw"""
     inv(Γ::CheckerboardMatrix)
 
 Return the inverse of the checkerboard matrix `Γ`.
@@ -223,7 +238,7 @@ Return the inverse of the checkerboard matrix `Γ`.
 inv(Γ::CheckerboardMatrix) = CheckerboardMatrix(Γ, inverted=!Γ.inverted)
 
 
-"""
+@doc raw"""
     mul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat)
 
 Evaluate the matrix-vector or matrix-matrix product `u=Γ⋅v`.
@@ -236,7 +251,7 @@ function mul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat)
     return nothing
 end
 
-"""
+@doc raw"""
     mul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat, color::Int)
 
 Evaluate the matrix-vector or matrix-matrix product `u=Γ[c]⋅v` where `Γ[c]` is the matrix
@@ -250,7 +265,7 @@ function mul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat, 
     return nothing
 end
 
-"""
+@doc raw"""
     mul!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix)
 
 Evaluate the matrix-vector or matrix-matrix product `u=v⋅Γ`.
@@ -263,7 +278,7 @@ function mul!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix)
     return nothing
 end
 
-"""
+@doc raw"""
     mul!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix, color::Int)
 
 Evaluate the matrix-vector or matrix-matrix product `u=v⋅Γ[c]` where `Γ[c]` is the matrix
@@ -278,7 +293,7 @@ function mul!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix, 
 end
 
 
-"""
+@doc raw"""
     lmul!(Γ::CheckerboardMatrix, u::AbstractVecOrMat)
 
 Evaluate in-place the matrix-vector or matrix-matrix product `u=Γ⋅u`, where `u` gets over-written.
@@ -291,7 +306,7 @@ function lmul!(Γ::CheckerboardMatrix, u::AbstractVecOrMat)
     return nothing
 end
 
-"""
+@doc raw"""
     lmul!(Γ::CheckerboardMatrix, u::AbstractVecOrMat, color::Int)
 
 Evaluate in-place the matrix-vector or matrix-matrix product `u=Γ[c]⋅u`, where `Γ[c]` is the matrix
@@ -306,7 +321,7 @@ function lmul!(Γ::CheckerboardMatrix, u::AbstractVecOrMat, color::Int)
 end
 
 
-"""
+@doc raw"""
     rmul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix)
 
 Evaluate in-place the matrix-vector or matrix-matrix product `u=u⋅Γ`, where `u` gets over-written.
@@ -319,7 +334,7 @@ function rmul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix)
     return nothing
 end
 
-"""
+@doc raw"""
     rmul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, color::Int)
 
 Evaluate in-place the matrix-vector or matrix-matrix product `u=u⋅Γ[c]`, where `Γ[c]` is the
@@ -334,7 +349,7 @@ function rmul!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, color::Int)
 end
 
 
-"""
+@doc raw"""
     ldiv!(Γ::CheckerboardMatrix, v::AbstractVecOrMat)
 
 Evaluate in-place the matrix-vector or matrix-matrix product `v=Γ⁻¹⋅v`.
@@ -347,7 +362,7 @@ function ldiv!(Γ::CheckerboardMatrix, v::AbstractVecOrMat)
     return nothing
 end
 
-"""
+@doc raw"""
     ldiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat)
 
 Evaluate the matrix-vector or matrix-matrix product `u=Γ⁻¹⋅v`.
@@ -360,7 +375,7 @@ function ldiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat)
     return nothing
 end
 
-"""
+@doc raw"""
     ldiv!(Γ::CheckerboardMatrix, v::AbstractVecOrMat, color::Int)
 
 Evaluate in-place the matrix-vector or matrix-matrix product `v=Γ⁻¹[c]⋅v` where `Γ⁻¹[c]` is the inverse
@@ -374,7 +389,7 @@ function ldiv!(Γ::CheckerboardMatrix, v::AbstractVecOrMat, color::Int)
     return nothing
 end
 
-"""
+@doc raw"""
     ldiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat, color::Int)
 
 Evaluate the matrix-vector or matrix-matrix product `u=Γ⁻¹[c]⋅v` where `Γ⁻¹[c]` is the inverse of the
@@ -389,7 +404,7 @@ function ldiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, v::AbstractVecOrMat,
 end
 
 
-"""
+@doc raw"""
     rdiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix)
 
 Evaluate in-place the matrix-vector or matrix-matrix product `u=u⋅Γ⁻¹`, where `u` gets over-written.
@@ -402,7 +417,7 @@ function rdiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix)
     return nothing
 end
 
-"""
+@doc raw"""
     rdiv!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix)
 
 Evaluate the matrix-vector or matrix-matrix product `u=v⋅Γ⁻¹`, where `u` gets over-written.
@@ -415,7 +430,7 @@ function rdiv!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix)
     return nothing
 end
 
-"""
+@doc raw"""
     rdiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, color::Int)
 
 Evaluate in-place the matrix-vector or matrix-matrix product `u=u⋅Γ⁻¹[c]`, where `Γ[c]` is the
@@ -429,7 +444,7 @@ function rdiv!(u::AbstractVecOrMat, Γ::CheckerboardMatrix, color::Int)
     return nothing
 end
 
-"""
+@doc raw"""
     rdiv!(u::AbstractVecOrMat, v::AbstractVecOrMat, Γ::CheckerboardMatrix, color::Int)
 
 Evaluate the matrix-vector or matrix-matrix product `u=v⋅Γ⁻¹[c]`, where `Γ[c]` is the

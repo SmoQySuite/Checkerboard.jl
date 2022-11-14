@@ -2,7 +2,7 @@
 ## METHODS FOR CONSTRUCTING CHECKERBOARD DECOMPOSITION ##
 #########################################################
 
-"""
+@doc raw"""
     checkerboard_decomposition!(neighbor_table::Matrix{Int})
 
 Given a `neighbor_table`, construct the checkerboard decomposition, which results in the columns of `neighbor_table` being re-ordered in-place.

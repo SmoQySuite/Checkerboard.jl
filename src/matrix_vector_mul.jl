@@ -2,7 +2,7 @@
 ## MATRIX-VECTOR MULTIPLY METHODS ##
 ####################################
 
-"""
+@doc raw"""
     checkerboard_lmul!(v::AbstractVector{T}, neighbor_table::Matrix{Int},
         coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
         transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
@@ -57,7 +57,7 @@ function checkerboard_lmul!(v::AbstractVector{T}, neighbor_table::Matrix{Int}, c
 end
 
 
-"""
+@doc raw"""
     checkerboard_color_lmul!(v::AbstractVector{T}, color::Int, neighbor_table::Matrix{Int},
         coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
         transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}

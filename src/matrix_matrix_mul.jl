@@ -2,7 +2,7 @@
 ## MATRIX-MATRIX MULTIPLY METHODS ##
 ####################################
 
-"""
+@doc raw"""
     checkerboard_lmul!(B::AbstractMatrix{T}, neighbor_table::Matrix{Int},
         coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
         transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
@@ -34,7 +34,7 @@ function checkerboard_lmul!(B::AbstractMatrix{T}, neighbor_table::Matrix{Int},
 end
 
 
-"""
+@doc raw"""
     checkerboard_color_lmul!(B::AbstractMatrix{T}, color::Int, neighbor_table::Matrix{Int},
         coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
         inverted::Bool=false) where {T<:Continuous}
@@ -80,7 +80,7 @@ function checkerboard_color_lmul!(B::AbstractMatrix{T}, color::Int, neighbor_tab
 end
 
 
-"""
+@doc raw"""
     checkerboard_rmul!(B::AbstractMatrix{T}, neighbor_table::Matrix{Int},
         coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
         transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
@@ -112,7 +112,7 @@ function checkerboard_rmul!(B::AbstractMatrix{T}, neighbor_table::Matrix{Int},
 end
 
 
-"""
+@doc raw"""
     checkerboard_color_rmul!(B::AbstractMatrix{T}, color::Int, neighbor_table::Matrix{Int},
         coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
         inverted::Bool=false) where {T<:Continuous}
