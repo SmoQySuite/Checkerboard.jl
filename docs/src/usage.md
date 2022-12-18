@@ -30,10 +30,10 @@ to assist with constructing the neighbor table.
 L       = 12 # lattice size
 square  = UnitCell(lattice_vecs = [[1.,0.],[0.,1.]], basis_vecs = [[0.,0.]])
 lattice = Lattice(L = [L,L], periodic = [true,true])
-bond_x  = Bond(orbitals = [1,1], displacement = [1,0])
-bond_y  = Bond(orbitals = [1,1], displacement = [0,1])
+bond_x  = Bond(orbitals = (1,1), displacement = [1,0])
+bond_y  = Bond(orbitals = (1,1), displacement = [0,1])
 nt      = build_neighbor_table([bond_x,bond_y], square, lattice)
-N       = get_num_sites(square, lattice)
+N       = nsites(square, lattice)
 
 # corresponding hopping for each pair of neighbors in the neighbor table
 t = fill(1.0, size(nt,2))

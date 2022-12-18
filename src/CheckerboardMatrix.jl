@@ -161,7 +161,7 @@ function update!(Γ::CheckerboardMatrix{T}, t::AbstractVector{T}, Δτ::E) where
 end
 
 @doc raw"""
-    update!(Γs::AbstractVector{CheckerboardMatrix{T}}, t::AbstractVector{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
+    update!(Γs::AbstractVector{CheckerboardMatrix{T}}, t::AbstractMatrix{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
 
 Update a vector of `CheckerboardMatrix` based on new hopping parameters `t` and discretezation in imaginary time `Δτ`. 
 """
@@ -191,7 +191,7 @@ function update!(coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, t::
     perm::AbstractVector{Int}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
 
     @. coshΔτt = cosh(Δτ*abs(t[perm]))
-    @. sinhΔτt = sign(t[perm])*sinh(Δτ*abs(t[perm]))
+    @. sinhΔτt = sign(conj(t[perm]))*sinh(Δτ*abs(t[perm]))
 
     return nothing
 end

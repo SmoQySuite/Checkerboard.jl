@@ -9,10 +9,10 @@ using Test
     L       = 12 # lattice size
     square  = UnitCell(lattice_vecs = [[1.,0.],[0.,1.]], basis_vecs = [[0.,0.]])
     lattice = Lattice(L = [L,L], periodic = [true,true])
-    bond_x  = Bond(orbitals = [1,1], displacement = [1,0])
-    bond_y  = Bond(orbitals = [1,1], displacement = [0,1])
+    bond_x  = Bond(orbitals = (1,1), displacement = [1,0])
+    bond_y  = Bond(orbitals = (1,1), displacement = [0,1])
     nt      = build_neighbor_table([bond_x,bond_y], square, lattice)
-    N       = get_num_sites(square, lattice)
+    N       = nsites(square, lattice)
 
     # corresponding hoppig for each pair of neighbors in the neighbor table
     t = fill(1.0, size(nt,2))
@@ -22,11 +22,11 @@ using Test
 
     # calculate exact exponentiated hopping matrix exp(-Δτ⋅K)
     K = zeros(Float64, L^2, L^2)
-    for c in 1:size(nt,2)
+    for c in axes(nt,2)
         i      = nt[1,c]
         j      = nt[2,c]
-        K[i,j] = -t[c]
         K[j,i] = -t[c]
+        K[i,j] = conj(-t[c])
     end
     expnΔτK = Hermitian(exp(-Δτ*K))
 
