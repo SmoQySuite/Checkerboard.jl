@@ -190,8 +190,8 @@ Update the `coshΔτt` and `sinhΔτt` associated with a checkerboard decomposit
 function update!(coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, t::AbstractVector{T},
     perm::AbstractVector{Int}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
 
-    @. coshΔτt = cosh(Δτ*abs(t[perm]))
-    @. sinhΔτt = sign(conj(t[perm]))*sinh(Δτ*abs(t[perm]))
+    @views @. coshΔτt = cosh(Δτ*abs(t[perm]))
+    @views @. sinhΔτt = sign(conj(t[perm]))*sinh(Δτ*abs(t[perm]))
 
     return nothing
 end
