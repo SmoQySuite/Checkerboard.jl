@@ -5,13 +5,15 @@
 @doc raw"""
     checkerboard_lmul!(B::AbstractMatrix{T}, neighbor_table::Matrix{Int},
         coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
-        transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
+        transposed::Bool=false, inverted::Bool=false) where {T<:Continuous, E<:Continuous}
 
 Evaluate the matrix-matrix product in-place `B=Γ⋅B` where `Γ` is the checkerboard matrix.
 """
 function checkerboard_lmul!(B::AbstractMatrix{T}, neighbor_table::Matrix{Int},
-    coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T},
-    colors::Matrix{Int}; transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
+    coshΔτt::AbstractVector{E}, sinhΔτt::AbstractVector{E},
+    colors::Matrix{Int}; transposed::Bool=false, inverted::Bool=false) where {T<:Continuous, E<:Continuous}
+
+    @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued matrix by a complex checkerboard matrix!"
 
     # number of checkerboard colors
     Ncolors = size(colors, 2)
@@ -37,13 +39,15 @@ end
 @doc raw"""
     checkerboard_color_lmul!(B::AbstractMatrix{T}, color::Int, neighbor_table::Matrix{Int},
         coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
-        inverted::Bool=false) where {T<:Continuous}
+        inverted::Bool=false) where {T<:Continuous, E<:Continuous}
 
 Evaluate the matrix-matrix product in-place `B=Γ[c]⋅B` where `Γ[c]` is the `color` checkerboard color matrix.
 """
 function checkerboard_color_lmul!(B::AbstractMatrix{T}, color::Int, neighbor_table::Matrix{Int},
-    coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T},
-    colors::Matrix{Int}; inverted::Bool=false) where {T<:Continuous}
+    coshΔτt::AbstractVector{E}, sinhΔτt::AbstractVector{E},
+    colors::Matrix{Int}; inverted::Bool=false) where {T<:Continuous, E<:Continuous}
+
+    @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued matrix by a complex checkerboard matrix!"
 
     # equals -1 for matrix inverse, +1 otherwise
     inverse = 1 - 2*inverted
@@ -82,14 +86,16 @@ end
 
 @doc raw"""
     checkerboard_rmul!(B::AbstractMatrix{T}, neighbor_table::Matrix{Int},
-        coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
-        transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
+        coshΔτt::AbstractVector{E}, sinhΔτt::AbstractVector{E}, colors::Matrix{Int};
+        transposed::Bool=false, inverted::Bool=false) where {T<:Continuous, E<:Continuous}
 
 Evaluate the matrix-matrix product in-place `B=B⋅Γ` where `Γ` is the checkerboard matrix.
 """
 function checkerboard_rmul!(B::AbstractMatrix{T}, neighbor_table::Matrix{Int},
-    coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T},
-    colors::Matrix{Int}; transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
+    coshΔτt::AbstractVector{E}, sinhΔτt::AbstractVector{E},
+    colors::Matrix{Int}; transposed::Bool=false, inverted::Bool=false) where {T<:Continuous, E<:Continuous}
+
+    @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued matrix by complex a checkerboard matrix!"
 
     # number of checkerboard colors
     Ncolors = size(colors, 2)
@@ -114,14 +120,16 @@ end
 
 @doc raw"""
     checkerboard_color_rmul!(B::AbstractMatrix{T}, color::Int, neighbor_table::Matrix{Int},
-        coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
-        inverted::Bool=false) where {T<:Continuous}
+        coshΔτt::AbstractVector{E}, sinhΔτt::AbstractVector{E}, colors::Matrix{Int};
+        inverted::Bool=false) where {T<:Continuous, E<:Continuous}
 
 Evaluate the matrix-matrix product in-place `B=B⋅Γ[c]` where `Γ[c]` is the `color` checkerboard color matrix.
 """
 function checkerboard_color_rmul!(B::AbstractMatrix{T}, color::Int, neighbor_table::Matrix{Int},
-    coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T},
-    colors::Matrix{Int}; inverted::Bool=false) where {T<:Continuous}
+    coshΔτt::AbstractVector{E}, sinhΔτt::AbstractVector{E},
+    colors::Matrix{Int}; inverted::Bool=false) where {T<:Continuous, E<:Continuous}
+
+    @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued matrix by a complex checkerboard matrix!"
 
     # equals -1 for matrix inverse, +1 otherwise
     inverse = 1 - 2*inverted

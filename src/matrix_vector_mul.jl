@@ -4,13 +4,16 @@
 
 @doc raw"""
     checkerboard_lmul!(v::AbstractVector{T}, neighbor_table::Matrix{Int},
-        coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
-        transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
+        coshΔτt::AbstractVector{E}, sinhΔτt::AbstractVector{E}, colors::Matrix{Int};
+        transposed::Bool=false, inverted::Bool=false) where {T<:Continuous, E<:Continuous}
 
 Multiply in-place the vector `v` by the checkerboard matrix.
 """
-function checkerboard_lmul!(v::AbstractVector{T}, neighbor_table::Matrix{Int}, coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T},
-    colors::Matrix{Int}; transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
+function checkerboard_lmul!(v::AbstractVector{T}, neighbor_table::Matrix{Int},
+    coshΔτt::AbstractVector{E}, sinhΔτt::AbstractVector{E},
+    colors::Matrix{Int}; transposed::Bool=false, inverted::Bool=false) where {T<:Continuous, E<:Continuous}
+
+    @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued vector by a complex checkerboard matrix!"
     
     # number of neighbor pairs
     Nneighbors = size(neighbor_table,2)
@@ -33,8 +36,11 @@ function checkerboard_lmul!(v::AbstractVector{T}, neighbor_table::Matrix{Int}, c
 end
 
 
-function checkerboard_lmul!(v::AbstractVector{T}, neighbor_table::Matrix{Int}, coshΔτt::AbstractArray{T}, sinhΔτt::AbstractArray{T},
-    colors::Matrix{Int}, L::Int; transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
+function checkerboard_lmul!(v::AbstractVector{T}, neighbor_table::Matrix{Int},
+    coshΔτt::AbstractArray{E}, sinhΔτt::AbstractArray{E},
+    colors::Matrix{Int}, L::Int; transposed::Bool=false, inverted::Bool=false) where {T<:Continuous, E<:Continuous}
+
+    @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued vector by a complex checkerboard matrix!"
     
     # number of neighbor pairs
     Nneighbors = size(neighbor_table,2)
@@ -59,13 +65,16 @@ end
 
 @doc raw"""
     checkerboard_color_lmul!(v::AbstractVector{T}, color::Int, neighbor_table::Matrix{Int},
-        coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, colors::Matrix{Int};
-        transposed::Bool=false, inverted::Bool=false) where {T<:Continuous}
+        coshΔτt::AbstractVector{E}, sinhΔτt::AbstractVector{E}, colors::Matrix{Int};
+        transposed::Bool=false, inverted::Bool=false) where {T<:Continuous, E<:Continuous}
 
 Multiply in-place the vector `v` by the `color` checkerboard color matrix.
 """
-function checkerboard_color_lmul!(v::AbstractVector{T}, color::Int, neighbor_table::Matrix{Int}, coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T},
-    colors::Matrix{Int}; inverted::Bool=false) where {T<:Continuous}
+function checkerboard_color_lmul!(v::AbstractVector{T}, color::Int, neighbor_table::Matrix{Int},
+    coshΔτt::AbstractVector{E}, sinhΔτt::AbstractVector{E},
+    colors::Matrix{Int}; inverted::Bool=false) where {T<:Continuous, E<:Continuous}
+
+    @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued vector by a complex checkerboard matrix!"
 
     # equals -1 for matrix inverse, +1 otherwise
     inverse = (1-2*inverted)
@@ -94,8 +103,11 @@ function checkerboard_color_lmul!(v::AbstractVector{T}, color::Int, neighbor_tab
 end
 
 
-function checkerboard_color_lmul!(v::AbstractVector{T}, color::Int, neighbor_table::Matrix{Int}, coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T},
-    colors::Matrix{Int}, L::Int; inverted::Bool=false) where {T<:Continuous}
+function checkerboard_color_lmul!(v::AbstractVector{T}, color::Int, neighbor_table::Matrix{Int},
+    coshΔτt::AbstractVector{E}, sinhΔτt::AbstractVector{E},
+    colors::Matrix{Int}, L::Int; inverted::Bool=false) where {T<:Continuous, E<:Continuous}
+
+    @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued vector by a complex checkerboard matrix!"
 
     # equals -1 for matrix inverse, +1 otherwise
     inverse = (1-2*inverted)
@@ -130,8 +142,11 @@ function checkerboard_color_lmul!(v::AbstractVector{T}, color::Int, neighbor_tab
 end
 
 
-function checkerboard_color_lmul!(v::AbstractVector{T}, color::Int, neighbor_table::Matrix{Int}, coshΔτt::AbstractMatrix{T}, sinhΔτt::AbstractMatrix{T},
-    colors::Matrix{Int}, L::Int; inverted::Bool=false) where {T<:Continuous}
+function checkerboard_color_lmul!(v::AbstractVector{T}, color::Int, neighbor_table::Matrix{Int},
+    coshΔτt::AbstractMatrix{E}, sinhΔτt::AbstractMatrix{E},
+    colors::Matrix{Int}, L::Int; inverted::Bool=false) where {T<:Continuous, E<:Continuous}
+
+    @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued vector by a complex checkerboard matrix!"
 
     # equals -1 for matrix inverse, +1 otherwise
     inverse = (1-2*inverted)
