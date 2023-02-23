@@ -14,16 +14,16 @@ function checkerboard_lmul!(v::AbstractVector{T}, neighbor_table::Matrix{Int},
     colors::Matrix{Int}; transposed::Bool=false, inverted::Bool=false) where {T<:Continuous, E<:Continuous}
 
     @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued vector by a complex checkerboard matrix!"
-    
-    # number of neighbor pairs
-    Nneighbors = size(neighbor_table,2)
+
+    # number of checkerboard colors
+    Ncolors = size(colors, 2)
 
     # how to iterate over neighbors in neighbor_table accounting for whether
     # or not the checkerboard matrix has been transposed
     transposed = inverted*(1-transposed) + (1-inverted)*transposed
-    start      = (1-transposed) + transposed*Nneighbors
+    start      = (1-transposed) + transposed*Ncolors
     step       = 1 - 2*transposed
-    stop       = (1-transposed)*Nneighbors + transposed
+    stop       = (1-transposed)*Ncolors + transposed
 
     # iterate over columns of B matrix
     for color in start:step:stop
@@ -42,15 +42,15 @@ function checkerboard_lmul!(v::AbstractVector{T}, neighbor_table::Matrix{Int},
 
     @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued vector by a complex checkerboard matrix!"
     
-    # number of neighbor pairs
-    Nneighbors = size(neighbor_table,2)
+    # number of checkerboard colors
+    Ncolors = size(colors, 2)
 
     # how to iterate over neighbors in neighbor_table accounting for whether
     # or not the checkerboard matrix has been transposed
     transposed = inverted*(1-transposed) + (1-inverted)*transposed
-    start      = (1-transposed) + transposed*Nneighbors
+    start      = (1-transposed) + transposed*Ncolors
     step       = 1 - 2*transposed
-    stop       = (1-transposed)*Nneighbors + transposed
+    stop       = (1-transposed)*Ncolors + transposed
 
     # iterate over columns of B matrix
     for color in start:step:stop

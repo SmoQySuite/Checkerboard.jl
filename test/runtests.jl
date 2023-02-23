@@ -39,6 +39,13 @@ using Test
     # take inverse of checkerboard matrix
     Γ⁻¹ = inv(Γ)
 
+    # test vector multiplication
+    v  = randn(N)
+    v′ = zeros(N)
+    mul!(v′, Γ, v)
+    lmul!(Γ⁻¹, v′)
+    @test v′ ≈ v
+
     # build dense versions of matrices
     I_dense   = Matrix{Float64}(I,L^2,L^2)
     Γ_dense   = similar(I_dense)
