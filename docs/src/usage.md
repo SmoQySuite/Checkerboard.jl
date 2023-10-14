@@ -1,6 +1,6 @@
 # Usage
 
-This section demonstrates how to use the [Checkerboard.jl](https://github.com/cohensbw/Checkerboard.jl) package.
+This section demonstrates how to use the [Checkerboard.jl](https://github.com/SmoQySuite/Checkerboard.jl) package.
 
 ## The Square Lattice
 
@@ -22,7 +22,7 @@ The next step is to construct the neighbor table, and record the corresponding h
 for a square lattice with isotropic nearest-neighbor hopping.
 We also define a discretization in imaginary time ``\Delta\tau``, which is used as the
 small parameter in the checkerboard decomposition approximation.
-We will use the package [LatticeUtilities.jl](https://github.com/cohensbw/LatticeUtilities.jl)
+We will use the package [LatticeUtilities.jl](https://github.com/SmoQySuite/LatticeUtilities.jl)
 to assist with constructing the neighbor table.
 
 ```@example square_lattice

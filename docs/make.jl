@@ -7,11 +7,11 @@ DocMeta.setdocmeta!(Checkerboard, :DocTestSetup, :(using Checkerboard); recursiv
 makedocs(;
     modules=[Checkerboard],
     authors="Benjamin Cohen-Stead <benwcs@gmail.com>",
-    repo="https://github.com/cohensbw/Checkerboard.jl/blob/{commit}{path}#{line}",
+    repo="https://github.com/SmoQySuite/Checkerboard.jl/blob/{commit}{path}#{line}",
     sitename="Checkerboard.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://cohensbw.github.io/Checkerboard.jl",
+        canonical="https://SmoQySuite.github.io/Checkerboard.jl",
         assets=String[],
     ),
     pages=[
@@ -22,6 +22,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/cohensbw/Checkerboard.jl",
+    repo="github.com/SmoQySuite/Checkerboard.jl",
     devbranch="master",
 )
