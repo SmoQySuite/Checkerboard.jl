@@ -204,6 +204,13 @@ update!(; coshΔτt, sinhΔτt, t, perm, Δτ) = update!(coshΔτt, sinhΔτt, t
 ########################
 
 @doc raw"""
+    eltype(Γ::CheckerboardMatrix{T}) where {T}
+
+Return the matrix element type `T` of checkerboard decomposition `Γ`.
+"""
+eltype(Γ::CheckerboardMatrix{T}) where {T} = T
+
+@doc raw"""
     size(Γ::CheckerboardMatrix)
     
     size(Γ::CheckerboardMatrix, dim::Int)

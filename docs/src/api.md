@@ -16,6 +16,7 @@ update!
 
 ## Overloaded Functions
 
+- [`eltype`](@ref)
 - [`size`](@ref)
 - [`transpose`](@ref)
 - [`adjoint`](@ref)
@@ -27,6 +28,7 @@ update!
 - [`rdiv!`](@ref)
 
 ```@docs
+Base.eltype
 Base.size
 Base.transpose
 Base.adjoint

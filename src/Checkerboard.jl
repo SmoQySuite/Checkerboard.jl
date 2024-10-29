@@ -1,7 +1,7 @@
 module Checkerboard
 
 using LinearAlgebra
-import Base: size, transpose, inv, adjoint
+import Base: size, transpose, inv, adjoint, eltype
 import LinearAlgebra: mul!, rmul!, lmul!, ldiv!, rdiv!
 
 """
