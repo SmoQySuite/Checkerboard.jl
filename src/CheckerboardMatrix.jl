@@ -62,14 +62,28 @@ struct CheckerboardMatrix{T<:Continuous}
 end
 
 @doc raw"""
-    CheckerboardMatrix(neighbor_table::Matrix{Int}, t::AbstractVector{T}, Δτ::E;
-        transposed::Bool=false, inverted::Bool=false) where {T<:Continuous, E<:AbstractFloat}
+    CheckerboardMatrix(
+        # ARGUMENTS
+        neighbor_table::Matrix{Int},
+        t::AbstractVector{T},
+        Δτ::E;
+        # KEYWORD ARGUMENTS
+        transposed::Bool=false,
+        inverted::Bool=false
+    ) where {T, E<:AbstractFloat}
 
 Given a `neighbor_table` along with the corresponding hopping amplitudes `t` and discretzation
 in imaginary time `Δτ`, construct an instance of the type `CheckerboardMatrix`. 
 """
-function CheckerboardMatrix(neighbor_table::Matrix{Int}, t::AbstractVector{T}, Δτ::E;
-    transposed::Bool=false, inverted::Bool=false) where {T, E<:AbstractFloat}
+function CheckerboardMatrix(
+    # ARGUMENTS
+    neighbor_table::Matrix{Int},
+    t::AbstractVector{T},
+    Δτ::E;
+    # KEYWORD ARGUMENTS
+    transposed::Bool=false,
+    inverted::Bool=false
+) where {T, E<:AbstractFloat}
 
     nt           = deepcopy(neighbor_table)
     perm, colors = checkerboard_decomposition!(nt)
@@ -85,13 +99,26 @@ function CheckerboardMatrix(neighbor_table::Matrix{Int}, t::AbstractVector{T}, �
 end
 
 @doc raw"""
-    CheckerboardMatrix(Γ::CheckerboardMatrix;
-        transposed::Bool=false, inverted::Bool=false, new_matrix::Bool=false)
+    CheckerboardMatrix(
+        # ARGUMENTS
+        Γ::CheckerboardMatrix{T};
+        # KEYWORD ARGUMENTS
+        transposed::Bool = Γ.transposed,
+        inverted::Bool   = Γ.inverted,
+        new_matrix::Bool = false
+    ) where {T}
 
 Construct a new instance of `CheckerboardMatrix` based on a current instance `Γ` of `CheckerboardMatrix`.
 If `new_matrix=true` then allocate new `coshΔτt` and `sinhΔτt` arrays.
 """
-function CheckerboardMatrix(Γ::CheckerboardMatrix{T}; transposed::Bool=false, inverted::Bool=false, new_matrix::Bool=false) where {T}
+function CheckerboardMatrix(
+    # ARGUMENTS
+    Γ::CheckerboardMatrix{T};
+    # KEYWORD ARGUMENTS
+    transposed::Bool = Γ.transposed,
+    inverted::Bool   = Γ.inverted,
+    new_matrix::Bool = false
+) where {T}
 
     (; Nsites, Nneighbors, Ncolors, neighbor_table, perm, inv_perm, colors) = Γ
 
@@ -109,13 +136,27 @@ function CheckerboardMatrix(Γ::CheckerboardMatrix{T}; transposed::Bool=false, i
 end
 
 @doc raw"""
-    checkerboard_matrices(neighbor_table::Matrix{Int}, t::AbstractMatrix{T}, Δτ::E;
-        transposed::Bool=false, inverted::Bool=false)
+    checkerboard_matrices(
+        # ARGUMENTS
+        neighbor_table::Matrix{Int},
+        t::AbstractMatrix{T},
+        # KEYWORD ARGUMENTS
+        Δτ::E;
+        transposed::Bool=false,
+        inverted::Bool=false
+    ) where {T<:Continuous, E<:AbstractFloat}
 
 Return a vector of `CheckerboardMatrix`, one for each column of `t`, all sharing the same `neighbor_table`.
 """
-function checkerboard_matrices(neighbor_table::Matrix{Int}, t::AbstractMatrix{T}, Δτ::E;
-    transposed::Bool=false, inverted::Bool=false) where {T<:Continuous, E<:AbstractFloat}
+function checkerboard_matrices(
+    # ARGUMENTS
+    neighbor_table::Matrix{Int},
+    t::AbstractMatrix{T},
+    # KEYWORD ARGUMENTS
+    Δτ::E;
+    transposed::Bool=false,
+    inverted::Bool=false
+) where {T<:Continuous, E<:AbstractFloat}
 
     @assert size(t,1) == size(neighbor_table,2)
 
@@ -148,11 +189,15 @@ function checkerboard_matrices(neighbor_table::Matrix{Int}, t::AbstractMatrix{T}
 end
 
 @doc raw"""
-    update!(Γ::CheckerboardMatrix{T}, t::AbstractVector{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
+    update!(
+        Γ::CheckerboardMatrix{T}, t::AbstractVector{T}, Δτ::E
+    ) where {T<:Continuous, E<:AbstractFloat}
 
 Update the `CheckerboardMatrix` based on new hopping parameters `t` and discretezation in imaginary time `Δτ`. 
 """
-function update!(Γ::CheckerboardMatrix{T}, t::AbstractVector{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
+function update!(
+    Γ::CheckerboardMatrix{T}, t::AbstractVector{T}, Δτ::E
+) where {T<:Continuous, E<:AbstractFloat}
 
     (; coshΔτt, sinhΔτt, perm) = Γ
     update!(coshΔτt, sinhΔτt, t, perm, Δτ)
@@ -161,11 +206,15 @@ function update!(Γ::CheckerboardMatrix{T}, t::AbstractVector{T}, Δτ::E) where
 end
 
 @doc raw"""
-    update!(Γs::AbstractVector{CheckerboardMatrix{T}}, t::AbstractMatrix{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
+    update!(
+        Γs::AbstractVector{CheckerboardMatrix{T}}, t::AbstractMatrix{T}, Δτ::E
+    ) where {T<:Continuous, E<:AbstractFloat}
 
 Update a vector of `CheckerboardMatrix` based on new hopping parameters `t` and discretezation in imaginary time `Δτ`. 
 """
-function update!(Γs::AbstractVector{CheckerboardMatrix{T}}, t::AbstractMatrix{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
+function update!(
+    Γs::AbstractVector{CheckerboardMatrix{T}}, t::AbstractMatrix{T}, Δτ::E
+) where {T<:Continuous, E<:AbstractFloat}
 
     @assert length(Γs) == size(t,2)
     @assert Γs[1].Nneighbors == size(t,1)
@@ -182,13 +231,18 @@ end
 update!(Γ; t, Δτ) = update!(Γ, t, Δτ)
 
 @doc raw"""
-    update!(coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, t::AbstractVector{T}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
+    update!(
+        coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, t::AbstractVector{T},
+        perm::AbstractVector{Int}, Δτ::E
+    ) where {T<:Continuous, E<:AbstractFloat}
 
 Update the `coshΔτt` and `sinhΔτt` associated with a checkerboard decomposition based on new hopping parameters
 `t` and discretezation in imaginary time `Δτ`. 
 """
-function update!(coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, t::AbstractVector{T},
-    perm::AbstractVector{Int}, Δτ::E) where {T<:Continuous, E<:AbstractFloat}
+function update!(
+    coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, t::AbstractVector{T},
+    perm::AbstractVector{Int}, Δτ::E
+) where {T<:Continuous, E<:AbstractFloat}
 
     @views @. coshΔτt = cosh(Δτ*abs(t[perm]))
     @views @. sinhΔτt = sign(conj(t[perm]))*sinh(Δτ*abs(t[perm]))
@@ -226,7 +280,7 @@ size(Γ::CheckerboardMatrix, dim::Int) = Γ.Nsites
 
 Return a transposed/adjoint version of the checkerboard matrix `Γ`.
 """
-transpose(Γ::CheckerboardMatrix) = CheckerboardMatrix(Γ, transposed=!Γ.transposed)
+transpose(Γ::CheckerboardMatrix) = CheckerboardMatrix(Γ, transposed = !Γ.transposed, inverted = Γ.inverted)
 
 
 @doc raw"""
@@ -234,7 +288,7 @@ transpose(Γ::CheckerboardMatrix) = CheckerboardMatrix(Γ, transposed=!Γ.transp
 
 Return a transposed/adjoint version of the checkerboard matrix `Γ`.
 """
-adjoint(Γ::CheckerboardMatrix) = CheckerboardMatrix(Γ, transposed=!Γ.transposed)
+adjoint(Γ::CheckerboardMatrix) = CheckerboardMatrix(Γ, transposed = !Γ.transposed, inverted = Γ.inverted)
 
 
 @doc raw"""
@@ -242,7 +296,7 @@ adjoint(Γ::CheckerboardMatrix) = CheckerboardMatrix(Γ, transposed=!Γ.transpos
 
 Return the inverse of the checkerboard matrix `Γ`.
 """
-inv(Γ::CheckerboardMatrix) = CheckerboardMatrix(Γ, inverted=!Γ.inverted)
+inv(Γ::CheckerboardMatrix) = CheckerboardMatrix(Γ, transposed = Γ.transposed, inverted = !Γ.inverted)
 
 
 @doc raw"""

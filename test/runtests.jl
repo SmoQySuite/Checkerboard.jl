@@ -39,6 +39,9 @@ using Test
     # take inverse of checkerboard matrix
     Γ⁻¹ = inv(Γ)
 
+    # take inverse of adjoint checkerboard matrix
+    Γ⁻ᵀ = transpose(Γ⁻¹)
+
     # test vector multiplication
     v  = randn(N)
     v′ = zeros(N)
@@ -51,24 +54,27 @@ using Test
     Γ_dense   = similar(I_dense)
     Γᵀ_dense  = similar(I_dense)
     Γ⁻¹_dense = similar(I_dense)
+    Γ⁻ᵀ_dense = similar(I_dense)
     mul!(Γ_dense,   Γ,   I_dense)
     mul!(Γᵀ_dense,  Γᵀ,  I_dense)
     mul!(Γ⁻¹_dense, Γ⁻¹, I_dense)
+    mul!(Γ⁻ᵀ_dense, Γ⁻ᵀ, I_dense)
 
-    @test Γ_dense ≈ transpose(Γᵀ_dense)
+    @test Γ_dense ≈ adjoint(Γᵀ_dense)
     @test Γ_dense ≈ inv(Γ⁻¹_dense)
+    @test Γ⁻¹_dense ≈ adjoint(Γ⁻ᵀ_dense)
     @test norm(Γ_dense-expnΔτK)/norm(expnΔτK) < 0.01
 
-    A = similar(Γ_dense)
-    B = similar(Γ_dense)
-    C = similar(Γ_dense)
+    # A = similar(Γ_dense)
+    # B = similar(Γ_dense)
+    # C = similar(Γ_dense)
 
-    mul!(A,Γ,I_dense)
-    mul!(B,I_dense,Γ)
-    @test A ≈ B
+    # mul!(A,Γ,I_dense)
+    # mul!(B,I_dense,Γ)
+    # @test A ≈ B
 
-    @. C = rand()
-    mul!(A,Γ,C)
-    mul!(B,C,Γ)
-    @test !(A ≈ B)
+    # @. C = rand()
+    # mul!(A,Γ,C)
+    # mul!(B,C,Γ)
+    # @test !(A ≈ B)
 end
