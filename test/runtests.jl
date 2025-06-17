@@ -65,16 +65,16 @@ using Test
     @test Γ⁻¹_dense ≈ adjoint(Γ⁻ᵀ_dense)
     @test norm(Γ_dense-expnΔτK)/norm(expnΔτK) < 0.01
 
-    # A = similar(Γ_dense)
-    # B = similar(Γ_dense)
-    # C = similar(Γ_dense)
+    A = similar(Γ_dense)
+    B = similar(Γ_dense)
+    C = similar(Γ_dense)
 
-    # mul!(A,Γ,I_dense)
-    # mul!(B,I_dense,Γ)
-    # @test A ≈ B
+    mul!(A,Γ,I_dense)
+    mul!(B,I_dense,Γ)
+    @test A ≈ B
 
-    # @. C = rand()
-    # mul!(A,Γ,C)
-    # mul!(B,C,Γ)
-    # @test !(A ≈ B)
+    @. C = rand()
+    mul!(A,Γ,C)
+    mul!(B,C,Γ)
+    @test !(A ≈ B)
 end
