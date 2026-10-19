@@ -24,7 +24,7 @@ function checkerboard_decomposition!(neighbor_table::Matrix{Int})
     # construct checkerboard colors
     color_assignments = _checkerboard_colors(neighbor_table)
 
-    # get checkerboard perm by getting the permuation the sorts the color assignments
+    # get checkerboard perm by getting the permutation the sorts the color assignments
     checkerboard_perm = sortperm(color_assignments)
 
     # get final permutation for checkerboard decomposition
@@ -35,7 +35,7 @@ function checkerboard_decomposition!(neighbor_table::Matrix{Int})
     @views @. color_assignments = color_assignments[checkerboard_perm]
     @views @. swapped           = swapped[perm]
 
-    # undo the swaps that occured in neighbor_table in the _sort_neighbor_table! method
+    # undo the swaps that occurred in neighbor_table in the _sort_neighbor_table! method
     for n in 1:size(neighbor_table,2)
         if swapped[n]
             tmp                 = neighbor_table[1,n]
@@ -47,7 +47,7 @@ function checkerboard_decomposition!(neighbor_table::Matrix{Int})
     # number of checkerboard colors
     Ncolors = maximum(color_assignments)
 
-    # get the column indice bounds that correspond to views of neighbor_table for each checkerboard color
+    # get the column index bounds that correspond to views of neighbor_table for each checkerboard color
     colors            = zeros(Int,2,Ncolors)
     colors[1,1]       = 1
     colors[2,Ncolors] = N
@@ -67,7 +67,7 @@ end
 ## PRIVATE FUNCTIONS, NOT EXPORTED ##
 #####################################
 
-# Returns the permuation `perm` that sorts `neighbor_table` such that the first row is in strictly ascending order,
+# Returns the permutation `perm` that sorts `neighbor_table` such that the first row is in strictly ascending order,
 # and for constant value in the first row the second row is also in ascending order.
 # Also returns an array indicating which columns of `neighbor_table` had the values in the first and second rows swapped.
 # Also modifies `neighbor_table` in place such that in each column the larger value is in the first row.

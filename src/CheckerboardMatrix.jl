@@ -1,11 +1,4 @@
 @doc raw"""
-    AbstractVecOrMat{T} = Union{AbstractVector{T}, AbstractMatrix{T}}
-
-Abstract type defining union of `AbstractVector` and `AbstractMatrix`.
-"""
-AbstractVecOrMat{T} = Union{AbstractVector{T}, AbstractMatrix{T}}
-
-@doc raw"""
     CheckerboardMatrix{T<:Union{AbstractFloat, Complex{<:AbstractFloat}}}
 
 A type to represent a checkerboard decomposition matrix.
