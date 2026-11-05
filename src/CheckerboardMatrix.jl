@@ -17,7 +17,7 @@ A type to represent a checkerboard decomposition matrix.
 - `inv_perm::Vector{Int}`: Inverse permuation of `perm`.
 - `colors::Matrix{Int}`: The bounds of each checkerboard color/group in `neighbor_table`.
 """
-struct CheckerboardMatrix{T<:Continuous}
+struct CheckerboardMatrix{T<:AbstractField}
     
     "Is checkerboard matrix transposed."
     transposed::Bool
@@ -137,7 +137,7 @@ end
         Δτ::E;
         transposed::Bool=false,
         inverted::Bool=false
-    ) where {T<:Continuous, E<:AbstractFloat}
+    ) where {T<:AbstractField, E<:AbstractFloat}
 
 Return a vector of `CheckerboardMatrix`, one for each column of `t`, all sharing the same `neighbor_table`.
 """
@@ -149,7 +149,7 @@ function checkerboard_matrices(
     Δτ::E;
     transposed::Bool=false,
     inverted::Bool=false
-) where {T<:Continuous, E<:AbstractFloat}
+) where {T<:AbstractField, E<:AbstractFloat}
 
     @assert size(t,1) == size(neighbor_table,2)
 
@@ -184,13 +184,13 @@ end
 @doc raw"""
     update!(
         Γ::CheckerboardMatrix{T}, t::AbstractVector{T}, Δτ::E
-    ) where {T<:Continuous, E<:AbstractFloat}
+    ) where {T<:AbstractField, E<:AbstractFloat}
 
 Update the `CheckerboardMatrix` based on new hopping parameters `t` and discretezation in imaginary time `Δτ`. 
 """
 function update!(
     Γ::CheckerboardMatrix{T}, t::AbstractVector{T}, Δτ::E
-) where {T<:Continuous, E<:AbstractFloat}
+) where {T<:AbstractField, E<:AbstractFloat}
 
     (; coshΔτt, sinhΔτt, perm) = Γ
     update!(coshΔτt, sinhΔτt, t, perm, Δτ)
@@ -201,13 +201,13 @@ end
 @doc raw"""
     update!(
         Γs::AbstractVector{CheckerboardMatrix{T}}, t::AbstractMatrix{T}, Δτ::E
-    ) where {T<:Continuous, E<:AbstractFloat}
+    ) where {T<:AbstractField, E<:AbstractFloat}
 
 Update a vector of `CheckerboardMatrix` based on new hopping parameters `t` and discretezation in imaginary time `Δτ`. 
 """
 function update!(
     Γs::AbstractVector{CheckerboardMatrix{T}}, t::AbstractMatrix{T}, Δτ::E
-) where {T<:Continuous, E<:AbstractFloat}
+) where {T<:AbstractField, E<:AbstractFloat}
 
     @assert length(Γs) == size(t,2)
     @assert Γs[1].Nneighbors == size(t,1)
@@ -227,7 +227,7 @@ update!(Γ; t, Δτ) = update!(Γ, t, Δτ)
     update!(
         coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, t::AbstractVector{T},
         perm::AbstractVector{Int}, Δτ::E
-    ) where {T<:Continuous, E<:AbstractFloat}
+    ) where {T<:AbstractField, E<:AbstractFloat}
 
 Update the `coshΔτt` and `sinhΔτt` associated with a checkerboard decomposition based on new hopping parameters
 `t` and discretezation in imaginary time `Δτ`. 
@@ -235,7 +235,7 @@ Update the `coshΔτt` and `sinhΔτt` associated with a checkerboard decomposit
 function update!(
     coshΔτt::AbstractVector{T}, sinhΔτt::AbstractVector{T}, t::AbstractVector{T},
     perm::AbstractVector{Int}, Δτ::E
-) where {T<:Continuous, E<:AbstractFloat}
+) where {T<:AbstractField, E<:AbstractFloat}
 
     @views @. coshΔτt = cosh(Δτ*abs(t[perm]))
     @views @. sinhΔτt = sign(conj(t[perm]))*sinh(Δτ*abs(t[perm]))

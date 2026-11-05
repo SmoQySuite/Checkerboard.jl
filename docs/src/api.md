@@ -42,7 +42,7 @@ LinearAlgebra.rdiv!
 
 ## Developer API
 
-- [`Checkerboard.Continuous`](@ref)
+- [`Checkerboard.AbstractField`](@ref)
 - [`checkerboard_decomposition!`](@ref)
 - [`checkerboard_lmul!`](@ref)
 - [`checkerboard_rmul!`](@ref)
@@ -50,7 +50,7 @@ LinearAlgebra.rdiv!
 - [`checkerboard_color_rmul!`](@ref)
 
 ```@docs
-Checkerboard.Continuous
+Checkerboard.AbstractField
 checkerboard_decomposition!
 checkerboard_lmul!
 checkerboard_rmul!

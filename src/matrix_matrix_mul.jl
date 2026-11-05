@@ -13,7 +13,7 @@
         # KEYWORD ARGUMENTS
         transposed::Bool=false,
         inverted::Bool=false
-    ) where {T<:Continuous, E<:Continuous}
+    ) where {T<:AbstractField, E<:AbstractField}
 
 Evaluate the matrix-matrix product in-place `B=Γ⋅B` where `Γ` is the checkerboard matrix.
 """
@@ -27,7 +27,7 @@ function checkerboard_lmul!(
     # KEYWORD ARGUMENTS
     transposed::Bool=false,
     inverted::Bool=false
-) where {T<:Continuous, E<:Continuous}
+) where {T<:AbstractField, E<:AbstractField}
 
     @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued matrix by a complex checkerboard matrix!"
 
@@ -63,7 +63,7 @@ end
         colors::Matrix{Int};
         # KEYWORD ARGUMENTS
         inverted::Bool=false
-    ) where {T<:Continuous, E<:Continuous}
+    ) where {T<:AbstractField, E<:AbstractField}
 
 Evaluate the matrix-matrix product in-place `B=Γ[c]⋅B` where `Γ[c]` is the `color` checkerboard color matrix.
 """
@@ -77,7 +77,7 @@ function checkerboard_color_lmul!(
     colors::Matrix{Int};
     # KEYWORD ARGUMENTS
     inverted::Bool=false
-) where {T<:Continuous, E<:Continuous}
+) where {T<:AbstractField, E<:AbstractField}
 
     @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued matrix by a complex checkerboard matrix!"
 
@@ -127,7 +127,7 @@ end
         # KEYWORD ARGUMENTS
         transposed::Bool=false,
         inverted::Bool=false
-    ) where {T<:Continuous, E<:Continuous}
+    ) where {T<:AbstractField, E<:AbstractField}
 
 Evaluate the matrix-matrix product in-place `B=B⋅Γ` where `Γ` is the checkerboard matrix.
 """
@@ -141,7 +141,7 @@ function checkerboard_rmul!(
     # KEYWORD ARGUMENTS
     transposed::Bool=false,
     inverted::Bool=false
-) where {T<:Continuous, E<:Continuous}
+) where {T<:AbstractField, E<:AbstractField}
 
     @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued matrix by complex a checkerboard matrix!"
 
@@ -177,7 +177,7 @@ end
         colors::Matrix{Int};
         # KEYWORD ARGUMENTS
         inverted::Bool=false
-    ) where {T<:Continuous, E<:Continuous}
+    ) where {T<:AbstractField, E<:AbstractField}
 
 Evaluate the matrix-matrix product in-place `B=B⋅Γ[c]` where `Γ[c]` is the `color` checkerboard color matrix.
 """
@@ -191,7 +191,7 @@ function checkerboard_color_rmul!(
     colors::Matrix{Int};
     # KEYWORD ARGUMENTS
     inverted::Bool=false
-) where {T<:Continuous, E<:Continuous}
+) where {T<:AbstractField, E<:AbstractField}
 
     @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued matrix by a complex checkerboard matrix!"
 

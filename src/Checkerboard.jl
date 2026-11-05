@@ -5,13 +5,13 @@ import Base: size, transpose, inv, adjoint, eltype
 import LinearAlgebra: mul!, rmul!, lmul!, ldiv!, rdiv!
 
 @doc raw"""
-    Continuous{T<:AbstractFloat}
+    AbstractField{T<:AbstractFloat}
 
 Real or complex floating-point number types with precision `T`, i.e. `Union{T, Complex{T}}`.
-The bare `Continuous` (without a parameter) covers every precision, for example `Float64`,
+The bare `AbstractField` (without a parameter) covers every precision, for example `Float64`,
 `ComplexF32`, and `BigFloat`, but excludes integer and rational types.
 """
-const Continuous{T<:AbstractFloat} = Union{T, Complex{T}}
+const AbstractField{T<:AbstractFloat} = Union{T, Complex{T}}
 
 # methods to construct the initial checkerboard decomposition
 include("construct_checkerboard.jl")

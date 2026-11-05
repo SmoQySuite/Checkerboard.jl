@@ -13,7 +13,7 @@
         # KEYWORD ARGUMENTS
         transposed::Bool=false,
         inverted::Bool=false
-    ) where {T<:Continuous, E<:Continuous}
+    ) where {T<:AbstractField, E<:AbstractField}
 
 Multiply in-place the vector `v` by the checkerboard matrix.
 """
@@ -27,7 +27,7 @@ function checkerboard_lmul!(
     # KEYWORD ARGUMENTS
     transposed::Bool=false,
     inverted::Bool=false
-) where {T<:Continuous, E<:Continuous}
+) where {T<:AbstractField, E<:AbstractField}
 
     @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued vector by a complex checkerboard matrix!"
 
@@ -61,7 +61,7 @@ function checkerboard_lmul!(
     L::Int;
     transposed::Bool=false,
     inverted::Bool=false
-) where {T<:Continuous, E<:Continuous}
+) where {T<:AbstractField, E<:AbstractField}
 
     @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued vector by a complex checkerboard matrix!"
     
@@ -97,7 +97,7 @@ end
         colors::Matrix{Int};
         # KEYWORD ARGUMENTS
         inverted::Bool=false
-    ) where {T<:Continuous, E<:Continuous}
+    ) where {T<:AbstractField, E<:AbstractField}
 
 Multiply in-place the vector `v` by the `color` checkerboard color matrix.
 """
@@ -111,7 +111,7 @@ function checkerboard_color_lmul!(
     colors::Matrix{Int};
     # KEYWORD ARGUMENTS
     inverted::Bool=false
-) where {T<:Continuous, E<:Continuous}
+) where {T<:AbstractField, E<:AbstractField}
 
     @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued vector by a complex checkerboard matrix!"
 
@@ -151,7 +151,7 @@ function checkerboard_color_lmul!(
     colors::Matrix{Int},
     L::Int;
     inverted::Bool=false
-) where {T<:Continuous, E<:Continuous}
+) where {T<:AbstractField, E<:AbstractField}
 
     @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued vector by a complex checkerboard matrix!"
 
@@ -197,7 +197,7 @@ function checkerboard_color_lmul!(
     colors::Matrix{Int},
     L::Int;
     inverted::Bool=false
-) where {T<:Continuous, E<:Continuous}
+) where {T<:AbstractField, E<:AbstractField}
 
     @assert !(T<:Real && E<:Complex) "Cannot multiply a real valued vector by a complex checkerboard matrix!"
 
